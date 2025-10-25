@@ -1,7 +1,9 @@
 import type { MetadataRoute } from 'next';
 
+export const dynamic = 'force-static';
+
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://yourdomain.com'; // 실제 도메인으로 변경하세요
+  const baseUrl = 'https://minoong.github.io/lmw-blog';
 
   return {
     rules: {

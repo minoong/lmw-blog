@@ -2,9 +2,11 @@ import type { MetadataRoute } from 'next';
 
 import { getBlogPosts } from '@/lib/blog';
 
+export const dynamic = 'force-static';
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getBlogPosts();
-  const baseUrl = 'https://yourdomain.com'; // 실제 도메인으로 변경하세요
+  const baseUrl = 'https://minoong.github.io/lmw-blog';
 
   const blogPosts = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
