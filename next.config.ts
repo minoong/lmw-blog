@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   basePath: isProd ? '/lmw-blog' : '',
+  trailingSlash: true,
   experimental: {
     viewTransition: true,
   },
