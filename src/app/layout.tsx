@@ -17,7 +17,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Tech Blog - 기술 블로그',
+  title: {
+    template: '%s | 이민우의 Tech Blog',
+    default: '이민우의 Tech Blog',
+  },
   description: '개발자의 기술 블로그. 개발 경험, 프로젝트, 그리고 학습 내용을 공유합니다.',
 };
 

@@ -12,7 +12,7 @@ import TableOfContents from '@/components/mdx/TableOfContents';
 import 'highlight.js/styles/github-dark.css';
 
 export const metadata: Metadata = {
-  title: 'About - Tech Blog',
+  title: 'About',
   description: '개발자 소개 페이지입니다.',
 };
 

@@ -6,9 +6,11 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import remarkGfm from 'remark-gfm';
+import Image from 'next/image';
 import { ViewTransition } from 'react';
 
-import { getBlogPost, getBlogPosts } from '@/lib/blog';
+import { getWorkProject, getWorkProjects } from '@/lib/blog';
+import { COMPANY_LOGOS } from '@/lib/constants';
 import TableOfContents from '@/components/mdx/TableOfContents';
 import 'highlight.js/styles/github-dark.css';
 
@@ -17,33 +19,33 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const posts = getBlogPosts();
-  return posts.map((post) => ({
-    slug: post.slug,
+  const projects = getWorkProjects();
+  return projects.map((project) => ({
+    slug: project.slug,
   }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const project = getWorkProject(slug);
 
-  if (!post) {
+  if (!project) {
     return {
       title: 'Not Found',
     };
   }
 
   return {
-    title: post.title,
-    description: post.description,
+    title: project.title,
+    description: project.description,
   };
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const project = getWorkProject(slug);
 
-  if (!post) {
+  if (!project) {
     notFound();
   }
 
@@ -53,23 +55,35 @@ export default async function BlogPostPage({ params }: Props) {
         {/* Main Content */}
         <article className="max-w-3xl">
           <header className="mb-8">
-            <ViewTransition name={`post-title-${slug}`}>
-              <h1 className="mb-4 text-4xl font-bold dark:text-white">{post.title}</h1>
+            <ViewTransition name={`project-title-${slug}`}>
+              <h1 className="mb-4 text-4xl font-bold dark:text-white">{project.title}</h1>
             </ViewTransition>
-            <ViewTransition name={`post-date-${slug}`}>
-              <div className="mb-4 flex items-center text-gray-600 dark:text-gray-400">
-                <time>{format(new Date(post.date), 'yyyy년 MM월 dd일')}</time>
-                {post.category && (
-                  <>
-                    <span className="mx-2">•</span>
-                    <span className="capitalize">{post.category}</span>
-                  </>
-                )}
-              </div>
-            </ViewTransition>
-            {post.tags && post.tags.length > 0 && (
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <ViewTransition name={`project-date-${slug}`}>
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                  <time>{format(new Date(project.startDate), 'yyyy년 MM월')}</time>
+                  <span>-</span>
+                  {project.endDate ? <time>{format(new Date(project.endDate), 'yyyy년 MM월')}</time> : <span>진행중</span>}
+                </div>
+              </ViewTransition>
+              {project.company && (
+                <>
+                  <span className="text-gray-600 dark:text-gray-400">•</span>
+                  <ViewTransition name={`company-logo-${slug}`}>
+                    {COMPANY_LOGOS[project.company] ? (
+                      <div className="flex h-7 items-center rounded bg-gray-300 px-2.5 py-1 dark:bg-gray-700">
+                        <Image src={COMPANY_LOGOS[project.company]} alt={project.company} width={70} height={24} className="h-5 w-auto object-contain" />
+                      </div>
+                    ) : (
+                      <span className="text-gray-600 dark:text-gray-400">{project.company}</span>
+                    )}
+                  </ViewTransition>
+                </>
+              )}
+            </div>
+            {project.tags && project.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
+                {project.tags.map((tag) => (
                   <span key={tag} className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                     {tag}
                   </span>
@@ -78,9 +92,9 @@ export default async function BlogPostPage({ params }: Props) {
             )}
           </header>
 
-          <div className="prose prose-lg max-w-none">
+          <div className="prose prose-lg dark:prose-invert max-w-none">
             <MDXRemote
-              source={post.content}
+              source={project.content}
               options={{
                 mdxOptions: {
                   remarkPlugins: [remarkGfm],
