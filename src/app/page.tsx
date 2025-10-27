@@ -14,7 +14,6 @@ export default function Home() {
     <div className="space-y-16">
       {/* Hero Section */}
       <section className="py-16 text-center">
-        <h1 className="mb-6 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-6xl font-bold text-transparent">Tech Blog</h1>
         <p className="mx-auto max-w-2xl text-xl leading-relaxed text-gray-600 dark:text-gray-400">
           개발 경험과 학습 내용을 공유하는 기술 블로그입니다.
           <br />
