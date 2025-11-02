@@ -101,6 +101,13 @@ export default async function BlogPostPage({ params }: Props) {
                 },
               }}
               components={{
+                a: (props) => {
+                  const href = props.href || '';
+                  const isExternal = href.startsWith('http');
+                  const isAnchor = href.startsWith('#');
+                  const finalHref = !isExternal && !isAnchor && href.startsWith('/') ? `${basePath}${href}` : href;
+                  return <a {...props} href={finalHref} />;
+                },
                 img: (props) => {
                   const src = props.src || '';
                   const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;
