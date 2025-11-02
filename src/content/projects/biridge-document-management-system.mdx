@@ -35,6 +35,43 @@ company: "유채널"
   - **비동기 멀티 업로드**: Promise 기반 병렬 처리로 업로드 속도 향상
   - **실시간 Progress Bar**: 파일별 업로드 진행률 시각화(XMLHttpRequest)
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as 사용자
+    participant Browser as 브라우저
+    participant XHR as XMLHttpRequest
+    participant Backend as 백엔드
+    participant DB as Oracle DB
+    participant Storage as File Storage
+
+    Note over User,Storage: 대용량 멀티 파일 업로드 프로세스
+
+    User->>Browser: 파일 Drag & Drop
+    Browser->>Browser: 파일 유효성 검증
+
+    loop 각 파일별 비동기 업로드
+        Browser->>XHR: 파일 업로드 시작
+        XHR->>Backend: Multipart 파일 전송
+
+        activate Backend
+        Backend->>Backend: 임시 디렉토리 저장
+        Backend->>DB: 파일 메타데이터 등록
+        Backend->>Storage: 영구 저장소로 이동
+
+        XHR-->>Browser: 진행률 이벤트 전송
+        Browser-->>User: Progress Bar 업데이트
+
+        Backend-->>XHR: 업로드 완료 응답
+        deactivate Backend
+
+        XHR-->>Browser: 업로드 결과
+        Browser-->>User: 완료 상태 표시
+    end
+
+    Note over User,Storage: 모든 파일 업로드 완료
+```
+
 ### **권한 기반 메뉴 관리 시스템**
 
 - **문제**: 역할별 차등 권한 관리 필요
@@ -73,6 +110,55 @@ company: "유채널"
 - **서버 스토리지 가용률**: 실시간 스토리지 사용량 모니터링
 - **보험사/은행별 의뢰건/작업 진행률**: 업무 현황 대시보드
 - **DB Pool Status**: 데이터베이스 커넥션 풀 상태 모니터링
+
+## 파일 관리 라이프사이클
+
+```mermaid
+stateDiagram-v2
+    [*] --> 업로드요청: 사용자 파일 선택
+
+    업로드요청 --> 임시저장: Multipart 전송
+    임시저장 --> 유효성검증: 파일 타입/크기 확인
+
+    유효성검증 --> 메타데이터등록: 검증 성공
+    유효성검증 --> 임시파일정리: 검증 실패
+
+    메타데이터등록 --> 영구저장: DB 커밋
+    메타데이터등록 --> 롤백처리: DB 에러
+
+    롤백처리 --> 임시파일정리: 물리 파일 삭제
+
+    영구저장 --> 히스토리등록: 업로드 이력 저장
+    히스토리등록 --> 활성상태: 업로드 완료
+
+    활성상태 --> 다운로드: 사용자 요청
+    활성상태 --> 삭제요청: 사용자 요청
+
+    다운로드 --> 다운로드이력: 이력 기록
+    다운로드이력 --> 활성상태: 계속 사용
+
+    삭제요청 --> 삭제이력: 이력 기록
+    삭제이력 --> 물리삭제: 파일 제거
+    물리삭제 --> [*]: 완전 삭제
+
+    임시파일정리 --> [*]: 정리 완료
+
+    note right of 임시저장
+        Exception 발생 시
+        finally 블록에서
+        tmp 파일 자동 삭제
+    end note
+
+    note right of 영구저장
+        트랜잭션 성공 시
+        영구 저장소로 이동
+    end note
+
+    note right of 활성상태
+        스케줄러를 통한
+        주기적 임시 파일 정리
+    end note
+```
 
 ## 개발 구현 내용
 

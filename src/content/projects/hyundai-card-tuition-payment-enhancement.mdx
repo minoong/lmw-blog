@@ -48,6 +48,41 @@ company: "유채널"
 
 **해결 방안**: 추가 납부를 인지할 수 있도록 레이어 UI 구성
 
+```mermaid
+flowchart TD
+    Start([납부 페이지 진입]) --> CheckItems{납부 항목 확인}
+
+    CheckItems -->|등록금만 존재| Tuition1[등록금 결제]
+    CheckItems -->|등록금 + 필수| Tuition2[등록금 결제]
+    CheckItems -->|등록금 + 필수 + 기타| Tuition3[등록금 결제]
+    CheckItems -->|등록금 + 기타| Tuition4[등록금 결제]
+
+    Tuition1 --> Complete1([납부 완료])
+
+    Tuition2 --> Modal2[추가 납부 안내<br/>레이어 팝업]
+    Modal2 --> Required2[필수 납입금 결제]
+    Required2 --> Complete2([납부 완료])
+
+    Tuition3 --> Modal3[추가 납부 안내<br/>레이어 팝업]
+    Modal3 --> Required3[필수 납입금 결제]
+    Required3 --> Modal3_2[추가 납부 안내<br/>레이어 팝업]
+    Modal3_2 --> Optional3[기타 납입금 결제]
+    Optional3 --> Complete3([납부 완료])
+
+    Tuition4 --> Modal4[추가 납부 안내<br/>레이어 팝업]
+    Modal4 --> Optional4[기타 납입금 결제]
+    Optional4 --> Complete4([납부 완료])
+
+    style Modal2 fill:#ffeb3b
+    style Modal3 fill:#ffeb3b
+    style Modal3_2 fill:#ffeb3b
+    style Modal4 fill:#ffeb3b
+    style Complete1 fill:#4caf50
+    style Complete2 fill:#4caf50
+    style Complete3 fill:#4caf50
+    style Complete4 fill:#4caf50
+```
+
 ### 등록금만 납부 후 브라우저 종료 시 재진입 시나리오
 
 1. **필수 납입금 존재**
@@ -60,6 +95,65 @@ company: "유채널"
    - 납부 페이지 진입 시 기타 납입금 미납 안내
 
 **해결 방안**: 납부 페이지 진입 시 추가 납부 안내
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as 학생
+    participant Browser as 브라우저
+    participant System as 대학 납부 시스템
+    participant DB as Oracle DB
+    participant PG as 현대카드 PG
+
+    Note over User,PG: 초기 납부 세션
+
+    User->>Browser: 납부 페이지 진입
+    Browser->>System: 납부 항목 조회
+    System->>DB: 학생별 납부 항목 조회
+    DB-->>System: 등록금 + 필수 + 기타
+    System-->>Browser: 납부 항목 목록
+
+    Browser->>User: 등록금 결제 요청
+    User->>Browser: 등록금 결제 진행
+    Browser->>PG: 등록금 승인 요청
+    PG-->>Browser: 승인 완료
+    Browser->>System: 등록금 납부 완료 저장
+    System->>DB: 등록금 납부 상태 업데이트
+
+    User->>Browser: 브라우저 종료 ❌
+
+    Note over User,PG: 재진입 세션
+
+    User->>Browser: 납부 페이지 재진입
+    Browser->>System: 납부 상태 조회
+    System->>DB: 납부 이력 조회
+    DB-->>System: 등록금: 완료<br/>필수: 미납<br/>기타: 미납
+
+    System->>System: 미납 항목 확인
+
+    alt 필수 납입금 미납
+        System-->>Browser: 필수 납입금 미납 안내
+        Browser-->>User: 레이어 팝업<br/>"필수 납입금을 납부해주세요"
+        User->>Browser: 필수 납입금 결제
+        Browser->>PG: 필수 납입금 승인 요청
+        PG-->>Browser: 승인 완료
+        Browser->>System: 필수 납입금 완료 저장
+        System->>DB: 필수 납입금 상태 업데이트
+    end
+
+    alt 기타 납입금 미납
+        System-->>Browser: 기타 납입금 미납 안내
+        Browser-->>User: 레이어 팝업<br/>"기타 납입금을 납부해주세요"
+        User->>Browser: 기타 납입금 결제
+        Browser->>PG: 기타 납입금 승인 요청
+        PG-->>Browser: 승인 완료
+        Browser->>System: 기타 납입금 완료 저장
+        System->>DB: 기타 납입금 상태 업데이트
+    end
+
+    System-->>Browser: 모든 납부 완료
+    Browser-->>User: 납부 완료 안내
+```
 
 ## 담당 업무
 

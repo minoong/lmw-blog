@@ -33,6 +33,61 @@ company: "유채널"
 
 표준지방세외수입정보시스템과 연동하여 고지자료에 가상계좌를 자동으로 매핑하는 배치 프로세스입니다.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Batch as 가상계좌 매핑<br/>배치
+    participant Tax as 표준지방세외수입<br/>정보시스템
+    participant DB as Oracle DB
+    participant Pool as 가상계좌<br/>대역대 풀
+
+    Note over Batch,Pool: 가상계좌 매핑 배치 프로세스 (자동 실행)
+
+    activate Batch
+
+    Note over Batch,Tax: 1단계: 데이터 수집
+
+    Batch->>Tax: 가상계좌 뷰 테이블 조회
+    Tax-->>Batch: 가상계좌 발급 대상
+
+    Batch->>Tax: 고지자료 뷰 테이블 조회
+    Tax-->>Batch: 신규 발생 고지건<br/>(고지번호, 금액, 납부자 정보)
+
+    Note over Batch,Pool: 2단계: 가상계좌 매핑
+
+    loop 각 고지자료별 처리
+        Batch->>Batch: 고지자료 검증<br/>(필수 항목, 금액 등)
+
+        alt 검증 실패
+            Batch->>DB: 오류 이력 저장
+        else 검증 성공
+            Batch->>Pool: 가상계좌 할당 요청
+            Pool-->>Batch: 가상계좌 번호 발급
+
+            Batch->>DB: 수납 대상 고지자료 저장
+            Batch->>DB: 가상계좌 매핑 저장<br/>(고지번호 ↔ 가상계좌번호)
+            Batch->>DB: 발급 이력 기록
+        end
+    end
+
+    Note over Batch,Tax: 3단계: 결과 전송
+
+    Batch->>Batch: 매핑 결과 집계<br/>(성공 건수, 실패 건수)
+
+    Batch->>Tax: 가상계좌 매핑 결과 전송<br/>(고지번호, 가상계좌번호)
+    Tax-->>Batch: 수신 확인
+
+    Batch->>Tax: 가상계좌번호 업데이트
+    Tax-->>Batch: 업데이트 완료
+
+    Batch->>DB: 처리 완료 상태 업데이트
+    Batch->>DB: 배치 실행 이력 저장
+
+    deactivate Batch
+
+    Note over Batch,Pool: 부산시 및 16개 구청 대상 매핑 완료
+```
+
 **프로세스 플로우**:
 
 1. **표준지방세외수입정보시스템 데이터 조회**
@@ -55,6 +110,53 @@ company: "유채널"
 
 납세자가 가상계좌로 납부 시 실시간으로 처리하는 서비스입니다.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as 납세자
+    participant Host as KB 호스트<br/>시스템
+    participant Service as 수납 처리<br/>서비스
+    participant DB as Oracle DB
+    participant Tax as 표준지방세외수입<br/>정보시스템
+
+    Note over User,Tax: 가상계좌 납부 실시간 처리
+
+    User->>Host: 가상계좌로 입금
+    Host->>Service: 가상계좌 거래 발생<br/>(가상계좌번호, 입금액)
+
+    activate Service
+
+    Service->>DB: 가상계좌 매핑 정보 조회
+    DB-->>Service: 고지번호, 매핑 정보
+
+    Service->>Tax: 원장 데이터 조회<br/>(고지번호)
+    Tax-->>Service: 고지정보<br/>(납부자, 고지금액, 미납액)
+
+    Service->>Service: 납부 금액 검증
+
+    alt 금액 불일치
+        Service-->>Host: 거래 거부<br/>(금액 불일치)
+        Host-->>User: 납부 불가 안내
+    else 금액 일치
+        Service->>Tax: 수납 처리 요청<br/>(고지번호, 수납 금액)
+
+        activate Tax
+        Tax->>Tax: 수납 처리
+        Tax-->>Service: 수납 완료 응답
+        deactivate Tax
+
+        Service->>DB: 수납 거래 내역 저장
+        Service->>DB: 수납 처리 상태 업데이트
+
+        Service-->>Host: 수납 완료 응답
+        Host-->>User: 납부 완료 안내
+    end
+
+    deactivate Service
+
+    Note over User,Tax: 부산시/구청 세외수입 실시간 납부 완료
+```
+
 **프로세스 플로우**:
 
 1. **가상계좌 거래 발생**
@@ -74,6 +176,83 @@ company: "유채널"
 ### 3. **일일대사 (배치 프로세스)**
 
 각 시스템 간의 수납 자료를 동기화하여 데이터 정합성을 보장합니다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Batch as 일일대사<br/>배치
+    participant Host as KB 호스트<br/>시스템
+    participant VA_DB as 가상계좌<br/>시스템 DB
+    participant Tax as 표준지방세외수입<br/>정보시스템
+    participant Report as 대사 결과<br/>리포트
+
+    Note over Batch,Report: 일일대사 배치 프로세스 (매일 자동 실행)
+
+    activate Batch
+
+    Note over Batch,Tax: 1단계: 3개 시스템 데이터 수집
+
+    Batch->>Host: 전일 거래 내역 조회
+    Host-->>Batch: 호스트 거래 데이터<br/>(거래번호, 가상계좌번호, 금액)
+
+    Batch->>VA_DB: 전일 수납 내역 조회
+    VA_DB-->>Batch: 가상계좌 수납 데이터<br/>(거래번호, 고지번호, 금액)
+
+    Batch->>Tax: 전일 수납 내역 조회
+    Tax-->>Batch: 표준시스템 수납 데이터<br/>(고지번호, 수납 금액)
+
+    Note over Batch,Report: 2단계: 데이터 대사
+
+    Batch->>Batch: 3개 시스템 데이터 매칭<br/>(거래번호 기준)
+
+    loop 각 거래별 대사
+        Batch->>Batch: 호스트 거래 금액 = A
+        Batch->>Batch: 가상계좌 수납 금액 = B
+        Batch->>Batch: 표준시스템 수납 금액 = C
+
+        Batch->>Batch: 정합성 검증<br/>(A = B = C)
+
+        alt 3개 시스템 일치
+            Batch->>Report: 정상 건 기록
+        else 불일치 발생
+            Batch->>Batch: 불일치 유형 분석
+
+            alt 호스트 ≠ 가상계좌
+                Batch->>Report: 매핑 오류 기록<br/>(원인: 가상계좌 처리 오류)
+            else 가상계좌 ≠ 표준시스템
+                Batch->>Report: 수납 전송 오류 기록<br/>(원인: 표준시스템 연계 실패)
+            else 3개 시스템 모두 불일치
+                Batch->>Report: 심각 오류 기록<br/>(원인: 시스템 간 동기화 실패)
+            end
+
+            Batch->>Report: 불일치 상세 정보 저장<br/>(각 시스템 금액, 차액)
+            Batch->>Report: 수동 처리 필요 건 등록
+        end
+    end
+
+    Note over Batch,Report: 3단계: 결과 처리
+
+    Batch->>Batch: 대사 결과 집계
+
+    Batch->>VA_DB: 대사 결과 DB 저장<br/>(일치 건수, 불일치 건수)
+
+    Batch->>Report: 일일대사 리포트 생성<br/>(부산시/16개 구청별 통계)
+    Report-->>Batch: 리포트 생성 완료
+
+    alt 불일치 건 존재
+        Batch->>Batch: 관리자 알림 발송<br/>(이메일/SMS)
+        Batch->>Report: 불일치 건 상세 리포트
+        Note right of Batch: 수동 확인 및<br/>조치 필요
+    else 전체 일치
+        Batch->>Report: 정상 완료 리포트
+    end
+
+    Batch->>VA_DB: 배치 실행 이력 저장
+
+    deactivate Batch
+
+    Note over Batch,Report: 관리자 대시보드에서 대사 결과 확인 가능
+```
 
 **프로세스 플로우**:
 

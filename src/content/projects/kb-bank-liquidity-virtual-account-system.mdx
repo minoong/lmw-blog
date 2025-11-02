@@ -44,6 +44,62 @@ company: "유채널"
 
 체납자 정보를 대량으로 업로드하여 통합 가상계좌를 발급하는 프로세스입니다.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Admin as 관리자
+    participant Web as 웹 화면
+    participant DB as Oracle DB
+    participant Daemon as 가상계좌<br/>데몬
+    participant VA_API as 가상계좌<br/>발급 API
+    participant Tax as 표준지방세외수입<br/>정보시스템
+
+    Note over Admin,Tax: 가상계좌 매핑 프로세스
+
+    Admin->>Web: 체납자 목록 파일 업로드<br/>(Excel/CSV)
+    Web->>DB: 업로드 파일 저장<br/>(임시 파일 테이블)
+    DB-->>Web: 저장 완료
+    Web-->>Admin: 업로드 완료
+
+    Note over Daemon,VA_API: 데몬 자동 처리
+
+    Daemon->>DB: 신규 업로드 파일 조회<br/>(주기적 폴링)
+    DB-->>Daemon: 미처리 파일 목록
+
+    activate Daemon
+
+    loop 각 파일별 처리
+        Daemon->>Daemon: Direct Buffer로 파일 읽기
+        Daemon->>Daemon: 데이터 검증<br/>(필수항목, 형식, 중복)
+
+        alt 검증 실패
+            Daemon->>DB: 검증 오류 저장
+        else 검증 성공
+            Daemon->>DB: 체납자 정보 저장
+
+            loop 각 체납자별 처리
+                Daemon->>Tax: 고지자료 조회
+                Tax-->>Daemon: 고지정보 목록<br/>(고지번호, 금액 등)
+
+                Daemon->>VA_API: 통합 가상계좌 채번 요청
+                VA_API-->>Daemon: 가상계좌 번호 발급
+
+                Daemon->>DB: 가상계좌 매핑 저장
+                Daemon->>DB: 고지자료 연결
+                Daemon->>DB: 우선순위 설정
+            end
+        end
+
+        Daemon->>DB: 파일 처리 완료 상태 업데이트
+    end
+
+    deactivate Daemon
+
+    Web->>DB: 발급 현황 조회
+    DB-->>Web: 완료 건수/실패 건수
+    Web-->>Admin: 발급 결과 표시
+```
+
 **프로세스 플로우**:
 
 1. **체납자 목록 업로드**
@@ -65,6 +121,64 @@ company: "유채널"
 
 체납자가 통합 가상계좌로 납부 시 처리하는 서비스입니다.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as 체납자
+    participant Host as KB 호스트<br/>시스템
+    participant Service as 수납 처리<br/>서비스
+    participant Tax as 표준지방세외수입<br/>정보시스템
+    participant DB as Oracle DB
+
+    Note over User,DB: 가상계좌 납부 프로세스
+
+    User->>Host: 통합 가상계좌로 입금<br/>(전체 금액의 일부 가능)
+    Host->>Service: 가상계좌 거래 발생<br/>(가상계좌번호, 납부 금액)
+
+    activate Service
+
+    Service->>DB: 가상계좌 정보 조회
+    DB-->>Service: 체납자 정보, 매핑 정보
+
+    Service->>Tax: 원장 데이터 조회<br/>(모든 고지자료)
+    Tax-->>Service: 고지정보 목록<br/>(고지번호, 미납 금액, 우선순위)
+
+    Service->>Service: 납부 금액 검증<br/>(최소 금액 이상)
+
+    alt 유효하지 않은 금액
+        Service-->>Host: 거래 거부
+        Host-->>User: 납부 불가 안내
+    else 유효한 금액
+        Note over Service: 우선순위 기반 금액 분배
+
+        Service->>Service: 우선순위 정렬
+        Service->>Service: 금액 분배 계산
+
+        loop 각 고지자료별
+            Service->>Service: 분배 금액 계산<br/>(우선순위 높은 순)
+
+            alt 분배 금액 있음
+                Service->>Tax: 수납 자료 전송<br/>(고지번호, 수납 금액)
+                Tax-->>Service: 수납 완료 응답
+                Service->>DB: 수납 내역 저장
+            end
+        end
+
+        Service->>Service: 잔액 확인
+
+        alt 잔액 존재 (과금)
+            Service->>DB: 입금 반환 대상 등록
+            Note right of Service: 입금 반환<br/>프로세스 진행
+        end
+
+        Service->>DB: 납부 완료 상태 업데이트
+        Service-->>Host: 수납 완료 응답
+        deactivate Service
+
+        Host-->>User: 납부 완료 안내<br/>(분배 내역)
+    end
+```
+
 **프로세스 플로우**:
 
 1. **가상계좌 거래 발생**
@@ -83,6 +197,83 @@ company: "유채널"
 ### 3. **입금 반환 (웹/서비스)**
 
 수납 시 과금된 금액을 반환하는 프로세스입니다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Admin as 관리자
+    participant Web as 웹 화면
+    participant Service as 입금 반환<br/>서비스
+    participant DB as Oracle DB
+    participant Host as KB 호스트<br/>시스템
+    participant File as 결과 파일<br/>시스템
+
+    Note over Admin,File: 입금 반환 프로세스
+
+    Admin->>Web: 입금 반환 메뉴 진입
+    Web->>DB: 과금 수납건 조회
+    DB-->>Web: 반환 대상 목록<br/>(과금 금액, 체납자 정보)
+    Web-->>Admin: 반환 대상 표시
+
+    Admin->>Web: 반환 건 선택<br/>입금 계좌 입력/조회
+    Web->>Service: 입금 반환 요청
+
+    activate Service
+
+    Service->>DB: 계좌 정보 조회
+
+    alt 계좌 미등록
+        DB-->>Service: 계좌 없음
+        Service-->>Web: 계좌 등록 필요
+        Web-->>Admin: 계좌 정보 입력 요청
+        Admin->>Web: 계좌번호 입력
+        Web->>Service: 계좌 정보 등록
+        Service->>DB: 계좌 정보 저장
+    else 계좌 등록됨
+        DB-->>Service: 입금 계좌 정보
+    end
+
+    Service->>Service: 반환 금액 계산
+    Service->>Service: 입금 반환 전문 생성<br/>(고정 길이 포맷)
+
+    Service->>Host: 전문 파일 전송<br/>(입금 반환 요청)
+
+    activate Host
+    Host->>Host: 반환 처리<br/>(계좌 이체)
+    Host->>File: 결과 파일 생성
+    deactivate Host
+
+    Note over Service,File: 결과 파일 처리 (비동기)
+
+    Service->>File: 결과 파일 폴링
+    File-->>Service: 반환 결과 파일
+
+    Service->>Service: 파일 파싱<br/>(고정 길이/CSV)
+
+    loop 각 반환 건별
+        Service->>Service: 결과 코드 확인
+
+        alt 반환 성공
+            Service->>DB: 반환 완료 상태 업데이트
+            Service->>DB: 반환 이력 저장
+        else 반환 실패
+            Service->>DB: 실패 이력 저장
+            Service->>DB: 재처리 대상 등록
+        end
+    end
+
+    Service-->>Web: 반환 처리 완료
+    deactivate Service
+
+    Web->>DB: 처리 결과 조회
+    DB-->>Web: 성공/실패 건수
+    Web-->>Admin: 결과 리포트 표시<br/>(성공 건, 실패 건)
+
+    alt 실패 건 존재
+        Admin->>Web: 실패 건 상세 조회
+        Web-->>Admin: 실패 사유 표시<br/>(수동 처리 안내)
+    end
+```
 
 **프로세스 플로우**:
 
@@ -104,6 +295,92 @@ company: "유채널"
 ### 4. **일일대사**
 
 각 시스템 간의 수납 자료를 동기화하여 데이터 정합성을 보장합니다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Batch as 일일대사<br/>배치
+    participant Host as KB 호스트<br/>시스템
+    participant VA_DB as 가상계좌<br/>시스템 DB
+    participant Tax as 표준지방세외수입<br/>정보시스템
+    participant Report as 대사 결과<br/>리포트
+
+    Note over Batch,Report: 일일대사 프로세스 (매일 자동 실행)
+
+    activate Batch
+
+    Note over Batch,Tax: 1단계: 데이터 수집
+
+    Batch->>Host: 전일 거래 내역 조회
+    Host-->>Batch: 호스트 거래 데이터<br/>(거래번호, 금액, 시간)
+
+    Batch->>VA_DB: 전일 수납 내역 조회
+    VA_DB-->>Batch: 가상계좌 수납 데이터<br/>(수납번호, 분배 금액, 고지번호)
+
+    Batch->>Tax: 전일 수납 내역 조회
+    Tax-->>Batch: 표준시스템 수납 데이터<br/>(고지번호, 수납 금액)
+
+    Note over Batch,Report: 2단계: 데이터 대사
+
+    Batch->>Batch: 3개 시스템 데이터 매칭
+
+    loop 각 거래별 대사
+        Batch->>Batch: 거래번호 기준 매칭
+
+        alt 호스트 거래 금액 확인
+            Batch->>Batch: 호스트 입금액 = A
+        end
+
+        alt 가상계좌 수납 내역 확인
+            Batch->>Batch: 분배 금액 합계 = B
+            Batch->>Batch: 각 고지별 분배 금액
+        end
+
+        alt 표준시스템 수납 확인
+            Batch->>Batch: 각 고지별 수납 금액 = C
+        end
+
+        Batch->>Batch: 정합성 검증<br/>(A = B = C)
+
+        alt 일치
+            Batch->>Report: 정상 건 기록
+        else 불일치
+            Batch->>Batch: 불일치 유형 분석
+
+            alt 호스트 ≠ 가상계좌
+                Batch->>Report: 분배 오류 기록<br/>(원인: 금액 분배 로직 오류)
+            else 가상계좌 ≠ 표준시스템
+                Batch->>Report: 수납 전송 오류 기록<br/>(원인: 표준시스템 연계 실패)
+            else 3개 시스템 모두 불일치
+                Batch->>Report: 심각 오류 기록<br/>(원인: 시스템 간 동기화 실패)
+            end
+
+            Batch->>Report: 불일치 상세 정보 저장<br/>(거래번호, 각 시스템 금액, 차액)
+        end
+    end
+
+    Note over Batch,Report: 3단계: 결과 처리
+
+    Batch->>Batch: 대사 결과 집계<br/>(총 건수, 일치 건수, 불일치 건수)
+
+    Batch->>Report: 일일대사 리포트 생성
+    Report-->>Batch: 리포트 생성 완료
+
+    alt 불일치 건 존재
+        Batch->>Report: 불일치 건 상세 리포트
+        Batch->>Batch: 관리자 알림 발송<br/>(이메일/SMS)
+        Note right of Batch: 수동 확인 및<br/>조치 필요
+    else 전체 일치
+        Batch->>Report: 정상 완료 리포트
+    end
+
+    Batch->>VA_DB: 대사 결과 DB 저장
+    Batch->>Batch: 배치 완료 로그 기록
+
+    deactivate Batch
+
+    Note over Batch,Report: 관리자는 웹 화면에서 대사 결과 확인 가능
+```
 
 **프로세스 플로우**:
 
