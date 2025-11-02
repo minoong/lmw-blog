@@ -10,7 +10,7 @@ import Image from 'next/image';
 import { ViewTransition } from 'react';
 
 import { getWorkProject, getWorkProjects } from '@/lib/blog';
-import { COMPANY_LOGOS } from '@/lib/constants';
+import { COMPANY_LOGOS, basePath } from '@/lib/constants';
 import TableOfContents from '@/components/mdx/TableOfContents';
 import Mermaid from '@/components/mdx/Mermaid';
 import 'highlight.js/styles/github-dark.css';
@@ -129,6 +129,12 @@ export default async function ProjectPage({ params }: Props) {
                   }
 
                   return <pre {...props}>{children}</pre>;
+                },
+                img: (props) => {
+                  const src = props.src || '';
+                  const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;
+                  // eslint-disable-next-line @next/next/no-img-element
+                  return <img {...props} src={finalSrc} alt={props.alt || ''} className="my-4 h-auto max-w-full rounded-lg" />;
                 },
               }}
             />
