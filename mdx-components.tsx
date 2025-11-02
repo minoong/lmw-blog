@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 import Mermaid from '@/components/mdx/Mermaid';
+import { basePath } from '@/lib/constants';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -56,7 +57,11 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         </Link>
       );
     },
-    img: (props) => <Image {...props} src={props.src || ''} alt={props.alt || ''} width={800} height={400} className="my-4 rounded-lg" />,
+    img: (props) => {
+      const src = props.src || '';
+      const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;
+      return <Image {...props} src={finalSrc} alt={props.alt || ''} width={800} height={400} className="my-4 rounded-lg" />;
+    },
     blockquote: ({ children }) => <blockquote className="my-4 border-l-4 border-gray-300 pl-4 text-gray-700 italic">{children}</blockquote>,
     code: ({ children, className }) => {
       const language = className?.replace('language-', '');
