@@ -1,0 +1,214 @@
+---
+title: 'Sentry 에러 모니터링 서비스 도입'
+order: 1
+startDate: '2021-08-01'
+endDate: '2021-10-31'
+description: 'React 및 Vanilla JS 기반 SPA 서비스에 Sentry 에러 트래킹 서비스 도입 및 통합'
+tags: ['APM', 'Sentry', 'JavaScript', 'React']
+company: "티몬"
+---
+
+## 프로젝트 개요
+
+SPA로 배포된 서비스의 운영 환경에서 에러 모니터링 및 트래킹이 필요함에 따라 Sentry를 도입했습니다. 실시간 에러 트래킹을 통해 이슈 대응 시간을 단축하고, 사용자 경험 개선을 목표로 했습니다.
+
+## 기술 스택
+
+- **Frontend**: JavaScript, React
+- **Monitoring**: Sentry Browser SDK, Sentry Tracing
+- **Error Tracking**: Error Boundary, Source Map Integration
+
+## 도입 배경
+
+### 운영 환경 모니터링의 필요성
+
+SPA 서비스는 클라이언트 사이드에서 렌더링되기 때문에 서버 로그만으로는 사용자가 겪는 실제 에러를 파악하기 어렵습니다. 이에 따라 다음과 같은 문제점들이 발생했습니다:
+
+**기존 문제점**:
+- 사용자가 보고하기 전까지 에러 인지 불가
+- 에러 발생 시 재현이 어려움
+- 어떤 환경에서 에러가 발생했는지 파악 어려움
+
+### 왜 Sentry를 선택했는가?
+
+다양한 에러 트래킹 도구 중 Sentry를 선택한 이유는 다음과 같습니다:
+
+**Sentry의 장점**:
+- **Source Map 연동**: 프로덕션 환경의 난독화된 코드도 원본 소스로 추적 가능
+- **히스토리**: 사용자의 UI 이벤트 및 Ajax 요청 히스토리 추적
+- **컨텍스트**: 브라우저 정보, 디바이스 정보, 사용자 액션 등 상세 정보 제공
+- **React 지원**: ErrorBoundary 통합으로 React 에러 처리 간소화
+
+## 기술적 과제
+
+### 1. React와 Vanilla JS 혼재 환경
+
+티몬 서비스는 레거시 코드와 신규 코드가 혼재된 상황이었습니다:
+
+- **React 기반**: 새로 개발된 페이지 및 컴포넌트
+- **Vanilla JS**: 기존 레거시 페이지
+
+두 환경 모두에서 에러를 일관되게 트래킹할 수 있는 통합 솔루션이 필요했습니다.
+
+## 구현 내용
+
+### 1. Sentry 초기화 및 설정
+
+Sentry SDK를 초기화하고 성능 트래킹을 설정했습니다.
+
+```javascript
+import * as Sentry from '@sentry/browser';
+import { BrowserTracing } from "@sentry/tracing";
+
+Sentry.init({
+  dsn: "https://example.ingest.sentry.io/project-id",
+  integrations: [new BrowserTracing()],
+
+  // 성능 트래킹 샘플링 비율
+  tracesSampleRate: 0.1, // 프로덕션 환경에서는 10%만 추적
+
+  // 환경별 설정
+  environment: process.env.NODE_ENV,
+
+  // 릴리즈 버전 추적
+  release: `tmon@${process.env.APP_VERSION}`,
+
+  // 민감 정보 필터링
+  beforeSend(event) {
+    // 사용자 개인정보 제거
+    if (event.request) {
+      delete event.request.cookies;
+    }
+    return event;
+  },
+});
+```
+
+**주요 설정 포인트**:
+- **tracesSampleRate**: 모든 요청을 추적하면 비용이 증가하므로 10%만 샘플링
+- **environment**: 개발/스테이징/프로덕션 환경 구분
+- **release**: 버전별 에러 추적으로 배포 후 회귀 버그 감지
+- **beforeSend**: 쿠키 등 민감 정보 제거
+
+### 2. React ErrorBoundary 구현
+
+React 컴포넌트 트리에서 발생하는 에러를 캐치하여 Sentry로 전송하는 ErrorBoundary를 구현했습니다.
+
+```javascript
+import React from 'react';
+import * as Sentry from '@sentry/browser';
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // 에러 발생 시 대체 UI 표시
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // 에러 정보를 Sentry로 전송
+    Sentry.withScope(scope => {
+      // React 컴포넌트 스택 추가
+      Object.keys(errorInfo).forEach(key => {
+        scope.setExtra(key, errorInfo[key]);
+      });
+
+      // 사용자 정보 추가 (선택적)
+      scope.setUser({
+        id: window.userId,
+      });
+
+      // 에러 캡처
+      Sentry.captureException(error);
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // 에러 발생 시 대체 UI
+      return (
+        <div className="error-fallback">
+          <h2>일시적인 오류가 발생했습니다</h2>
+          <p>페이지를 새로고침 해주세요.</p>
+          <button onClick={() => window.location.reload()}>
+            새로고침
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
+```
+
+**ErrorBoundary 동작 원리**:
+1. **getDerivedStateFromError**: 에러 발생 시 state 업데이트
+2. **componentDidCatch**: 에러 정보 수집 및 Sentry로 전송
+3. **render**: 에러 발생 시 대체 UI 렌더링
+
+### 3. App 컴포넌트 통합
+
+최상위 App 컴포넌트에 ErrorBoundary를 적용했습니다.
+
+### 4. Vanilla JS 환경 통합
+
+레거시 Vanilla JS 코드에서도 에러를 트래킹할 수 있도록 전역 에러 핸들러를 설정했습니다.
+
+```javascript
+// Vanilla JS 전역 에러 핸들링
+window.addEventListener('error', (event) => {
+  Sentry.captureException(event.error);
+});
+
+// Promise rejection 에러 핸들링
+window.addEventListener('unhandledrejection', (event) => {
+  Sentry.captureException(event.reason);
+});
+
+// try-catch
+try {
+  logic();
+} catch (error) {
+  Sentry.captureException(error, {
+    tags: {
+      section: 'deal',
+      action: 'fetchData',
+    },
+    extra: {
+      orderId: orderId,
+    },
+  });
+}
+```
+
+## 담당 업무
+
+### 1. 통합 아키텍처 설계
+
+**React + Vanilla JS 통합 전략**:
+- ErrorBoundary를 통한 React 에러 처리
+- 전역 이벤트 리스너를 통한 Vanilla JS 에러 처리
+
+### 2. 성능 최적화
+
+**샘플링 전략**:
+- 중요 페이지는 샘플링 비율 상향 조정
+
+```javascript
+tracesSampler: (samplingContext) => {
+  // 딜 상세 페이지는 높은 샘플링 비율
+  if (samplingContext.location.pathname.includes('/deal/')) {
+    return 0.5; // 50%
+  }
+
+  // 일반 페이지(쿠폰, 리뷰...)는 낮은 샘플링 비율
+  return 0.1; // 10%
+}
+```
