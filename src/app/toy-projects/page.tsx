@@ -22,7 +22,7 @@ export default function ToyProjectsPage() {
           {projects.map((project) => (
             <div
               key={project.slug}
-              className="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+              className="dark:border-claude-border dark:bg-claude-surface rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
             >
               <div className="mb-4 flex items-start justify-between">
                 <h2 className="text-2xl font-bold dark:text-white">{project.title}</h2>
@@ -67,7 +67,7 @@ export default function ToyProjectsPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-xl bg-gray-100 py-12 text-center dark:bg-gray-800">
+        <div className="dark:bg-claude-surface rounded-xl bg-gray-100 py-12 text-center">
           <p className="mb-4 animate-bounce text-lg text-gray-500 dark:text-gray-400">아직 등록된 프로젝트가 없습니다.</p>
         </div>
       )}

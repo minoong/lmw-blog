@@ -31,7 +31,7 @@ export default function BlogList({ posts, tags }: BlogListProps) {
               className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
                 selectedTag === null
                   ? 'bg-blue-600 text-white dark:bg-blue-500'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                  : 'dark:bg-claude-surface dark:hover:bg-claude-border bg-gray-100 text-gray-700 hover:bg-gray-200 dark:text-gray-300'
               }`}
             >
               All
@@ -60,7 +60,7 @@ export default function BlogList({ posts, tags }: BlogListProps) {
             <ViewTransition key={post.slug} name={`post-card-${post.slug}`}>
               <Link
                 href={`/blog/${post.slug}`}
-                className="group block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+                className="group dark:border-claude-border dark:bg-claude-surface block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
               >
                 <div className="mb-3 flex flex-wrap gap-2">
                   {post.tags?.map((tag) => (
@@ -91,7 +91,7 @@ export default function BlogList({ posts, tags }: BlogListProps) {
           ))}
         </div>
       ) : (
-        <div className="rounded-xl bg-gray-100 py-12 text-center dark:bg-gray-800">
+        <div className="dark:bg-claude-surface rounded-xl bg-gray-100 py-12 text-center">
           <p className="mb-4 animate-bounce text-lg text-gray-500 dark:text-gray-400">
             {selectedTag ? `"${selectedTag}" 태그의 포스트가 없습니다.` : '아직 작성된 포스트가 없습니다.'}
           </p>

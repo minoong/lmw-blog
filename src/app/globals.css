@@ -3,6 +3,13 @@
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Claude dark mode colors */
+  --color-claude-bg: #060606;
+  --color-claude-surface: #111111;
+  --color-claude-border: #1f1f1f;
+  --color-claude-text: #e5e5e5;
+  --color-claude-text-secondary: #b0b0b0;
 }
 
 @variant dark (&:where(.dark, .dark *));
@@ -115,11 +122,11 @@ html {
 }
 
 .prose code {
-  @apply bg-gray-100 dark:bg-gray-800 text-pink-600 dark:text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono;
+  @apply bg-gray-100 dark:bg-claude-border text-pink-600 dark:text-pink-400 px-1.5 py-0.5 rounded text-sm font-mono;
 }
 
 .prose pre {
-  @apply bg-gray-900 dark:bg-gray-950 text-gray-100 overflow-x-auto rounded-xl p-4 my-6 border border-gray-800 dark:border-gray-700 shadow-lg;
+  @apply bg-gray-900 dark:bg-[#1a1a1a] text-gray-100 overflow-x-auto rounded-xl p-4 my-6 border border-gray-800 dark:border-claude-border shadow-lg;
 }
 
 .prose pre code {
@@ -143,7 +150,7 @@ html {
 }
 
 .prose blockquote {
-  @apply border-l-4 border-blue-500 dark:border-blue-400 pl-4 my-6 italic text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-950/20 py-2 rounded-r;
+  @apply border-l-4 border-blue-500 dark:border-blue-400 pl-4 my-6 italic text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-claude-surface py-2 rounded-r-sm;
 }
 
 .prose img {
@@ -163,11 +170,11 @@ html {
 }
 
 .prose thead th {
-  @apply font-semibold text-left p-3 bg-gray-50 dark:bg-gray-900;
+  @apply font-semibold text-left p-3 bg-gray-50 dark:bg-claude-surface;
 }
 
 .prose tbody tr {
-  @apply border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors;
+  @apply border-b border-gray-200 dark:border-claude-border hover:bg-gray-50 dark:hover:bg-claude-surface transition-colors;
 }
 
 .prose tbody td {

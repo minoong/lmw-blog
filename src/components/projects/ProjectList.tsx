@@ -67,7 +67,7 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
               className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
                 selectedCompany === null
                   ? 'bg-blue-600 text-white dark:bg-blue-500'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                  : 'dark:bg-claude-surface dark:hover:bg-claude-border bg-gray-100 text-gray-700 hover:bg-gray-200 dark:text-gray-300'
               }`}
             >
               All
@@ -106,7 +106,7 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
               <div className="mb-6 flex items-center gap-4">
                 <div className="flex items-center gap-3">
                   {COMPANY_LOGOS[group.company] && (
-                    <div className="flex h-8 items-center rounded bg-gray-300 px-3 py-1.5 shadow-sm dark:bg-gray-800">
+                    <div className="dark:bg-claude-border flex h-8 items-center rounded bg-gray-300 px-3 py-1.5 shadow-sm">
                       <Image src={COMPANY_LOGOS[group.company]} alt={group.company} width={80} height={28} className="h-6 w-auto object-contain" />
                     </div>
                   )}
@@ -120,12 +120,12 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
                   <ViewTransition key={project.slug} name={`project-card-${project.slug}`}>
                     <Link
                       href={`/projects/${project.slug}`}
-                      className="group block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+                      className="group dark:border-claude-border dark:bg-claude-surface block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
                     >
                       <div className="mb-3 flex items-center justify-between">
                         <ViewTransition name={`company-logo-${project.slug}`}>
                           {project.company && COMPANY_LOGOS[project.company] ? (
-                            <div className="flex h-6 items-center rounded bg-gray-300 px-2 py-1 dark:bg-gray-700">
+                            <div className="dark:bg-claude-border flex h-6 items-center rounded bg-gray-300 px-2 py-1">
                               <Image src={COMPANY_LOGOS[project.company]} alt={project.company} width={60} height={20} className="h-4 w-auto object-contain" />
                             </div>
                           ) : (
@@ -151,7 +151,7 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
                       {project.tags && project.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
                           {project.tags.map((tag) => (
-                            <span key={tag} className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                            <span key={tag} className="dark:bg-claude-border rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400">
                               {tag}
                             </span>
                           ))}
@@ -165,7 +165,7 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
           ))}
         </div>
       ) : (
-        <div className="rounded-xl bg-gray-100 py-12 text-center dark:bg-gray-800">
+        <div className="dark:bg-claude-surface rounded-xl bg-gray-100 py-12 text-center">
           <p className="mb-4 animate-bounce text-lg text-gray-500 dark:text-gray-400">
             {selectedCompany ? `${selectedCompany}의 프로젝트가 없습니다.` : '아직 등록된 프로젝트가 없습니다.'}
           </p>

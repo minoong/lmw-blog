@@ -13,7 +13,7 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">
+      <button className="dark:bg-claude-surface rounded-lg bg-gray-100 p-2">
         <div className="h-5 w-5" />
       </button>
     );
@@ -24,7 +24,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="rounded-lg bg-gray-100 p-2 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+      className="dark:bg-claude-surface dark:hover:bg-claude-border rounded-lg bg-gray-100 p-2 transition-colors hover:bg-gray-200"
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
