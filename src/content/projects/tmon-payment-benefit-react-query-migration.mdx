@@ -1,0 +1,114 @@
+---
+title: '결제혜택 서비스 React-Query 마이그레이션'
+order: 4
+startDate: '2022-02-01'
+endDate: '2022-04-30'
+description: 'Redux 기반 결제혜택 서비스를 React-Query로 마이그레이션하여 서버 상태 관리 개선'
+tags: ['React', 'React-Query', 'Redux', 'Migration', 'Refactoring']
+company: "티몬"
+---
+
+## 프로젝트 개요
+
+기존 Redux로 관리되던 [결제혜택 팝업 서비스](/projects/tmon-payment-benefit-popup)의 서버 상태 관리를 React-Query로 마이그레이션했습니다. 불필요한 보일러플레이트 코드를 제거하고 캐싱 및 데이터 동기화를 자동화하여 개발 생산성과 사용자 경험을 향상시켰습니다.
+
+## 기술 스택
+
+- **Frontend**: React, Hooks
+- **Server State**: React-Query (v3)
+- **Global State**: Redux (일부 클라이언트 상태만 유지)
+- **HTTP Client**: Axios
+
+## 도입 배경
+
+### 기존 Redux 방식의 문제점
+
+[결제혜택 팝업 서비스](/projects/tmon-payment-benefit-popup) 개발 당시 Redux-Saga를 사용하여 서버 데이터를 관리했습니다. 하지만 다음과 같은 문제점들이 있었습니다:
+
+**1. 불필요한 전역 상태 관리**
+- API 응답 데이터를 Redux Store에 저장
+- 서버 데이터를 클라이언트 상태로 관리하는 비효율
+
+**2. 반복적인 보일러플레이트 코드**
+- API 호출마다 요청/성공/실패 액션 타입 정의
+- Reducer에서 loading, error, data 상태 관리
+- Saga에서 try-catch 및 에러 처리 로직 반복
+
+**3. 데이터 동기화 어려움**
+- 여러 컴포넌트에서 같은 데이터가 필요할 때 중복 호출
+- 데이터가 변경되었을 때 수동으로 리패치 필요
+- 캐싱 전략 직접 구현 필요
+
+**4. 개발 생산성 저하**
+- 새로운 API 추가 시 많은 코드 작성 필요
+- 유지보수 비용 증가
+- 비동기 로직 복잡도 증가
+
+### 왜 React-Query를 선택했는가?
+
+React-Query는 서버 상태 관리에 특화된 라이브러리로 다음과 같은 장점이 있습니다:
+
+**React-Query의 장점**:
+- **간결한 API**: useQuery, useMutation hook으로 간단하게 서버 데이터 관리
+- **자동 캐싱**: 쿼리 키 기반 자동 캐싱 및 중복 요청 방지
+- **백그라운드 리패치**: 데이터 최신성 자동 유지
+- **에러/로딩 상태 자동 관리**: 별도 상태 관리 불필요
+- **DevTools**: 쿼리 상태를 시각적으로 확인 가능
+
+## 마이그레이션 전략
+
+### 1. 점진적 마이그레이션
+
+전체를 한 번에 바꾸는 것이 아닌, 기능 단위로 점진적으로 마이그레이션했습니다.
+
+**마이그레이션 순서**:
+1. 읽기 전용 API (혜택 조회) → useQuery
+2. Redux에서 서버 상태 제거
+3. 클라이언트 상태만 Redux에 유지
+
+### 2. Redux와 React-Query 병행 사용
+
+마이그레이션 기간 동안 Redux와 React-Query를 함께 사용했습니다.
+
+**역할 분담**:
+- **React-Query**: 서버 데이터 (API 응답)
+- **Redux**: 클라이언트 상태 (UI 상태, 선택된 탭 등)
+
+## 구현 내용
+
+### 1. React-Query 구현
+
+React-Query 설정 및 기능 개발
+
+- QueryClient 생성
+- React-Query DevTools 추가
+- pending, loading, success, error 상태별 UI 컴포넌트 분기 처리
+
+## 마이그레이션 결과
+
+### 1. 코드량 감소
+
+**Redux-Saga 제거**:
+- 액션 타입 정의: 삭제
+- 리듀서: 삭제
+- 사가: 삭제
+
+### 2. 성능 개선
+
+**중복 요청 방지**:
+- 여러 컴포넌트에서 같은 데이터 요청 시 자동 배치
+- 네트워크 요청 감소
+
+**캐싱 효과**:
+- staleTime 동안 캐시된 데이터 즉시 반환
+- 사용자가 페이지를 재방문할 때 빠른 로딩
+
+### 3. 개발 생산성 향상
+
+**새로운 API 추가 시**:
+- 기존: 액션, 리듀서, 사가 구현
+- 개선: useQuery 훅 구현
+
+## 관련 프로젝트
+
+- [결제혜택 팝업 기능 개발](/projects/tmon-payment-benefit-popup) - 마이그레이션 대상이 된 원본 프로젝트
