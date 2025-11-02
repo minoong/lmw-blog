@@ -1,0 +1,119 @@
+---
+title: "유채널 홈페이지 구축"
+order: 3
+startDate: "2015-10-05"
+endDate: "2016-02-26"
+description: "유체널 홈페이지 리뉴얼 및 콘텐츠 관리 시스템 구축"
+tags: ["JavaScript", "jQuery", "jQuery Mobile", "Java", "Spring", "Oracle"]
+company: "유채널"
+---
+
+## 프로젝트 링크
+
+- **PC 버전**: [http://www.uchannel.co.kr](http://www.uchannel.co.kr/im/IM0001$List.do)
+- **Mobile 버전**: [http://www.uchannel.co.kr/m/im/IM0001$List.do](http://www.uchannel.co.kr/m/im/IM0001$List.do)
+
+## 프로젝트 개요
+
+유채널 홈페이지를 리뉴얼하고, 콘텐츠 관리를 위한 관리자 시스템을 구축했습니다. 레가시 시스템에서 데이터를 이행하고, 네이버 스마트 에디터를 활용한 편집 기능을 구현하였습니다.
+
+## 프로젝트 정보
+
+- **개발 기간**: 2015.10 ~ 2016.02
+- **포지션**: Front/Back-end
+- **개발 인원**: 3명
+
+## 기술 스택
+
+- **Frontend**: JavaScript, jQuery, jQuery Mobile
+- **Backend**: Java, Spring Framework
+- **Database**: Oracle
+- **Server**: Linux, Apache
+
+## 담당 업무
+
+### 1. **화면 레이아웃 및 UI 컴포넌트 구현**
+
+- User-Agent 기반 PC/Mobile 환경 분리 구조 설계 및 구현
+- jQuery 기반 UI 컴포넌트 개발
+
+### 2. **테이블 설계/구현**
+
+- Oracle 데이터베이스 스키마 설계
+- 게시판, 회원, 콘텐츠 관리 테이블 구조 설계
+
+### 3. **네이버 스마트 에디터 연동**
+
+- 네이버 스마트 에디터 API 통합
+- 이미지 업로드 및 파일 첨부 기능 구현
+- HTML 콘텐츠 렌더링 및 XSS 방지 처리
+
+### 4. **레가시 DB 데이터 운영 이행 작업**
+
+- 기존 시스템 데이터 분석 및 매핑
+- 데이터 마이그레이션 스크립트 작성
+- 데이터 정합성 검증 및 이행 후 테스트
+
+### 5. **Apache를 통한 운영 배포 작업**
+
+- Apache 웹 서버 설정 및 최적화
+- 운영 환경 배포
+
+## 개발 구현 내용
+
+### Frontend 개발
+
+1. **jQuery 기반 UI 컴포넌트**
+   - **캐러셀(Carousel) 구현**:
+     - CSS transform 을 슬라이드 애니메이션
+   - **드롭다운 메뉴 구현**:
+     - addEventListener를 통한 메뉴 hover/click 이벤트 처리
+
+2. **jQuery 기반 추가 기능**
+   - 폼 유효성 검증
+   - AJAX 통신 및 비동기 데이터 로딩
+
+3. **User-Agent 기반 PC/Mobile 환경 분리**
+   - 서버 사이드에서 User-Agent 헤더 감지 및 분기 처리
+   - PC와 Mobile 별도 페이지 구조 및 URL 체계 구축
+   - PC: `/` 경로, Mobile: `/m/` 경로로 분리
+   - **Mobile 버전에 jQuery Mobile 프레임워크 적용**:
+     - jQuery Mobile의 터치 최적화 UI 컴포넌트 활용
+     - 스와이프(Swipe) 제스처 및 터치 이벤트 처리
+     - 모바일 리스트뷰, 버튼
+
+### Backend 개발
+
+4. **Spring Framework**
+   - Spring MVC 패턴
+   - RESTful API 설계 및 구현
+   - **User-Agent 감지 및 분기 처리**:
+     - Spring Interceptor를 활용한 User-Agent 헤더 파싱
+     - 모바일 디바이스 감지 로직 (iOS, Android 등)
+     - PC/Mobile 별 ViewResolver 분기 처리
+
+5. **게시판 시스템**
+   - 공지사항, 뉴스, FAQ 게시판 CRUD 기능
+   - 페이징, 검색, 정렬 기능 구현
+   - 파일 첨부 및 다운로드 기능
+
+6. **관리자 시스템**
+   - 콘텐츠 관리 인터페이스 개발
+   - 연혁 관리
+
+### Database 개발
+
+7. **Oracle DB**
+   - 테이블 스키마 설계 (회원, 게시판, 파일, 메뉴 등)
+
+### 시스템 구축 및 배포
+
+8. **데이터 마이그레이션**
+   - 레가시 시스템 데이터 추출
+   - 데이터 변환 및 정제 작업
+   - 신규 시스템으로 데이터 이행 및 검증
+
+9. **운영 환경 구축**
+   - Apache 웹 서버 설정 및 튜닝
+   - 로드 밸런싱 및 성능 최적화
+   - 배포 자동화 스크립트 작성
