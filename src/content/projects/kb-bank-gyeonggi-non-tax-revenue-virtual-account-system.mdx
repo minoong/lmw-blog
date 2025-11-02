@@ -1,0 +1,153 @@
+---
+title: 'KB국민은행 경기도청 세외수입 가상계좌 시스템 구축'
+order: 15
+startDate: '2021-02-01'
+endDate: '2021-04-30'
+description: '표준지방세외수입정보시스템과 연동한 경기도청 소방특별회계 범용 가상계좌 시스템 구축'
+tags: ['Java', 'Spring Framework', 'Oracle', 'Shell Script']
+company: "유채널"
+---
+
+## 프로젝트 개요
+
+표준지방세외수입정보시스템에서 생성되는 납세자의 고지정보를 KB국민은행 가상계좌팀에서 발급받은 가상계좌 대역대를 이용하여 납부 가능한 가상계좌번호를 매핑하여 납세자가 수납할 수 있도록 서비스를 제공합니다.
+
+**경기도청 소방특별회계에 대한 범용 가상계좌 시스템을 구축했습니다.**
+
+## 기술 스택
+
+- **Language**: Java, JavaScript
+- **Framework**: Spring Framework
+- **Database**: Oracle
+- **DevOps**: Shell Script, Linux
+- **OS**: Linux, Windows
+
+## 프로젝트 정보
+
+- **고객사**: KB국민은행, 경기도청
+- **개발 인원**: 1명
+- **담당 역할**: Back-end, Front-end(My Start 단말), 인프라
+
+## 업무 프로세스
+
+### 1. 가상계좌 매핑 (배치)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Tax as 표준지방세외수입<br/>정보시스템
+    participant Batch as 배치 시스템
+    participant DB as 내부 DB
+    participant VA as 가상계좌 시스템
+
+    Note over Tax,VA: 가상계좌 매핑 프로세스
+
+    Batch->>Tax: 가상계좌 뷰 테이블 조회
+    Batch->>Tax: 고지자료 뷰 테이블 조회
+
+    Batch->>DB: 수납 대상 고지자료 적재
+    Batch->>DB: 고지자료별 가상계좌 매핑
+
+    Batch->>VA: 가상계좌 발급 요청
+    VA-->>Batch: 가상계좌 번호 응답
+
+    Batch->>Tax: 매핑 결과 적재
+```
+
+1. 표준지방세외수입정보시스템 가상계좌 뷰 테이블, 고지자료 뷰 테이블 조회
+2. 내부 테이블 적재
+   - 수납 대상 고지자료
+   - 고지자료별 가상계좌 매핑
+3. 표준지방세외수입정보시스템 결과 적재
+
+### 2. 가상계좌 납부 (서비스)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as 납세자
+    participant VA as 가상계좌 시스템
+    participant Tax as 표준지방세외수입<br/>정보시스템
+    participant Host as 호스트 시스템
+
+    Note over User,Host: 가상계좌 납부 프로세스
+
+    User->>VA: 가상계좌로 입금
+
+    VA->>Tax: 원장 데이터 조회
+    Tax-->>VA: 고지정보 응답
+
+    VA->>VA: 수납 처리
+
+    VA->>Tax: 수납 자료 전송
+    VA->>Host: 수납 내역 전송
+
+    VA-->>User: 납부 완료
+```
+
+1. 가상계좌 거래 시 표준지방세외수입정보시스템에 대한 원장 데이터 조회
+2. 수납 자료 전송
+
+### 3. 일일 대사
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Host as 호스트 시스템
+    participant VA as 가상계좌 시스템
+    participant Tax as 표준지방세외수입<br/>정보시스템
+    participant Batch as 대사 배치
+
+    Note over Host,Batch: 일일 대사 프로세스
+
+    Batch->>Host: 호스트 수납 내역 조회
+    Batch->>VA: 가상계좌 수납 내역 조회
+    Batch->>Tax: 표준시스템 수납 내역 조회
+
+    Batch->>Batch: 3개 시스템 데이터 비교
+
+    alt 불일치 발견
+        Batch->>Batch: 오류 내역 기록
+        Batch->>VA: 정정 처리
+    else 일치
+        Batch->>Batch: 대사 완료 기록
+    end
+```
+
+호스트 시스템, 가상계좌 시스템, 표준지방세외수입정보시스템의 수납 자료 동기화
+
+## 담당 업무
+
+### 1. 업무 테이블 설계/구현
+- 고지자료 테이블 설계
+- 가상계좌 매핑 테이블 설계
+- 수납 내역 테이블 설계
+- 대사 결과 테이블 설계
+
+### 2. 시스템 구성도 설계 및 구현
+- 시스템 아키텍처 설계
+- 표준지방세외수입정보시스템 연동 구조 설계
+- 가상계좌 시스템 연동 구조 설계
+
+### 3. 업무 배치/서비스 설계/구현
+- **가상계좌 매핑, 고지자료 등록**
+  - 고지자료 수집 배치 개발
+  - 가상계좌 매핑 로직 구현
+- **수취인 조회, 수납 처리**
+  - 수취인 조회 서비스 개발
+  - 실시간 수납 처리 서비스 구현
+- **일일 대사**
+  - 3개 시스템 간 수납 내역 대사 배치 개발
+  - 오류 감지 및 정정 프로세스 구현
+
+### 4. 시스템 간 전문 통신 서비스 설계/구현
+- 표준지방세외수입정보시스템 전문 통신 개발
+- 가상계좌 시스템 전문 통신 개발
+- 호스트 시스템 전문 통신 개발
+- 전문 송수신 로그 관리 시스템 구현
+
+### 5. 빌드/배포 Shell Script 설계/구현
+- 자동 빌드 스크립트 작성
+- 배포 자동화 스크립트 구현
+- 서버 환경별 배포 스크립트 구성
+- 롤백 스크립트 구현
