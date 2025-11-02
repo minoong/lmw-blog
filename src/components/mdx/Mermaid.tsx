@@ -14,6 +14,8 @@ export default function Mermaid({ chart }: MermaidProps) {
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
+    if (!resolvedTheme) return;
+
     const isDarkMode = resolvedTheme === 'dark';
 
     mermaid.initialize({
@@ -24,15 +26,14 @@ export default function Mermaid({ chart }: MermaidProps) {
 
     const render = async () => {
       if (ref.current) {
-        ref.current.innerHTML = '';
-        const div = document.createElement('div');
-        div.className = 'mermaid';
-        div.textContent = chart;
-        ref.current.appendChild(div);
+        try {
+          const id = `mermaid-${Date.now()}`;
+          const { svg } = await mermaid.render(id, chart);
 
-        await mermaid.run({
-          nodes: [div],
-        });
+          ref.current.innerHTML = svg;
+        } catch (error) {
+          console.error('Mermaid rendering error:', error);
+        }
       }
     };
 
