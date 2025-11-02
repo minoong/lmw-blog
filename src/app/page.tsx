@@ -65,7 +65,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="rounded-xl bg-gray-100 py-12 text-center dark:bg-gray-800">
-            <p className="text-gray-500 dark:text-gray-400">아직 작성된 포스트가 없습니다.</p>
+            <p className="animate-bounce text-gray-500 dark:text-gray-400">아직 작성된 포스트가 없습니다.</p>
           </div>
         )}
       </section>
@@ -133,7 +133,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="rounded-xl bg-gray-100 py-12 text-center dark:bg-gray-800">
-            <p className="text-gray-500 dark:text-gray-400">아직 등록된 프로젝트가 없습니다.</p>
+            <p className="animate-bounce text-gray-500 dark:text-gray-400">아직 등록된 프로젝트가 없습니다.</p>
           </div>
         )}
       </section>

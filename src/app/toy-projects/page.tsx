@@ -68,11 +68,7 @@ export default function ToyProjectsPage() {
         </div>
       ) : (
         <div className="rounded-xl bg-gray-100 py-12 text-center dark:bg-gray-800">
-          <p className="mb-4 text-lg text-gray-500 dark:text-gray-400">아직 등록된 프로젝트가 없습니다.</p>
-          <p className="text-gray-400 dark:text-gray-500">
-            <code className="rounded bg-gray-200 px-2 py-1 dark:bg-gray-700">src/content/toy-projects/</code> 폴더에 MDX 파일을 추가하여 프로젝트를 등록할 수
-            있습니다.
-          </p>
+          <p className="mb-4 animate-bounce text-lg text-gray-500 dark:text-gray-400">아직 등록된 프로젝트가 없습니다.</p>
         </div>
       )}
     </div>
