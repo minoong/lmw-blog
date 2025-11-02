@@ -12,7 +12,7 @@ export default function HamburgerIcon({ isOpen, onClick }: HamburgerIconProps) {
       aria-expanded={isOpen}
     >
       <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 dark:bg-gray-300 ${isOpen ? 'translate-y-2 rotate-45' : ''}`} />
-      <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 dark:bg-gray-300 ${isOpen ? 'opacity-0' : 'opacity-100'}`} />
+      <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 dark:bg-gray-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`} />
       <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 dark:bg-gray-300 ${isOpen ? '-translate-y-2 -rotate-45' : ''}`} />
     </button>
   );
