@@ -55,17 +55,17 @@ export default async function BlogPostPage({ params }: Props) {
           <header className="mb-8">
             <ViewTransition name={`post-title-${slug}`}>
               <h1 className="mb-4 text-4xl font-bold dark:text-white">{post.title}</h1>
-            </ViewTransition>
-            <ViewTransition name={`post-date-${slug}`}>
-              <div className="mb-4 flex items-center text-gray-600 dark:text-gray-400">
-                <time>{format(new Date(post.date), 'yyyy년 MM월 dd일')}</time>
-                {post.category && (
-                  <>
-                    <span className="mx-2">•</span>
-                    <span className="capitalize">{post.category}</span>
-                  </>
-                )}
-              </div>
+              <ViewTransition name={`post-date-${slug}`}>
+                <div className="mb-4 flex items-center text-gray-600 dark:text-gray-400">
+                  {post.category && (
+                    <>
+                      <span className="capitalize">{post.category}</span>
+                      <span className="mx-2">•</span>
+                    </>
+                  )}
+                  <time>{format(new Date(post.date), 'yyyy년 MM월 dd일')}</time>
+                </div>
+              </ViewTransition>
             </ViewTransition>
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">

@@ -28,7 +28,7 @@ export default function BlogList({ posts, tags }: BlogListProps) {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+              className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
                 selectedTag === null
                   ? 'bg-blue-600 text-white dark:bg-blue-500'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
@@ -40,10 +40,10 @@ export default function BlogList({ posts, tags }: BlogListProps) {
               <button
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
-                className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
                   selectedTag === tag
                     ? 'bg-blue-600 text-white dark:bg-blue-500'
-                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50'
+                    : 'bg-blue-100 text-gray-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-gray-300 dark:hover:bg-blue-900/50'
                 }`}
               >
                 {tag}

@@ -59,16 +59,8 @@ export default async function ProjectPage({ params }: Props) {
               <h1 className="mb-4 text-4xl font-bold dark:text-white">{project.title}</h1>
             </ViewTransition>
             <div className="mb-4 flex flex-wrap items-center gap-3">
-              <ViewTransition name={`project-date-${slug}`}>
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                  <time>{format(new Date(project.startDate), 'yyyy년 MM월')}</time>
-                  <span>-</span>
-                  {project.endDate ? <time>{format(new Date(project.endDate), 'yyyy년 MM월')}</time> : <span>진행중</span>}
-                </div>
-              </ViewTransition>
               {project.company && (
                 <>
-                  <span className="text-gray-600 dark:text-gray-400">•</span>
                   <ViewTransition name={`company-logo-${slug}`}>
                     {COMPANY_LOGOS[project.company] ? (
                       <div className="flex h-7 items-center rounded bg-gray-300 px-2.5 py-1 dark:bg-gray-700">
@@ -78,8 +70,16 @@ export default async function ProjectPage({ params }: Props) {
                       <span className="text-gray-600 dark:text-gray-400">{project.company}</span>
                     )}
                   </ViewTransition>
+                  <span className="text-gray-600 dark:text-gray-400">•</span>
                 </>
               )}
+              <ViewTransition name={`project-date-${slug}`}>
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                  <time>{format(new Date(project.startDate), 'yyyy년 MM월')}</time>
+                  <span>-</span>
+                  {project.endDate ? <time>{format(new Date(project.endDate), 'yyyy년 MM월')}</time> : <span>진행중</span>}
+                </div>
+              </ViewTransition>
             </div>
             {project.tags && project.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
