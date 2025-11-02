@@ -173,3 +173,13 @@ html {
 .prose tbody td {
   @apply p-3;
 }
+
+
+.prose .mermaid {
+  @apply my-8 flex justify-center;
+}
+
+.prose .mermaid svg {
+  @apply max-w-full h-auto;
+  background-color: transparent;
+}

@@ -2,6 +2,8 @@ import type { MDXComponents } from 'mdx/types';
 import Link from 'next/link';
 import Image from 'next/image';
 
+import Mermaid from '@/components/mdx/Mermaid';
+
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     h1: ({ children, id }) => (
@@ -56,8 +58,28 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     },
     img: (props) => <Image {...props} src={props.src || ''} alt={props.alt || ''} width={800} height={400} className="my-4 rounded-lg" />,
     blockquote: ({ children }) => <blockquote className="my-4 border-l-4 border-gray-300 pl-4 text-gray-700 italic">{children}</blockquote>,
-    code: ({ children }) => <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-sm text-gray-800">{children}</code>,
-    pre: ({ children }) => <pre className="my-4 overflow-x-auto rounded-lg bg-gray-900 p-4 text-gray-100">{children}</pre>,
+    code: ({ children, className }) => {
+      const language = className?.replace('language-', '');
+
+      if (language === 'mermaid' && typeof children === 'string') {
+        return <Mermaid chart={children} />;
+      }
+
+      return <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-200">{children}</code>;
+    },
+    pre: ({ children }) => {
+      if (children && typeof children === 'object' && 'props' in children) {
+        const codeProps = children.props;
+        const className = codeProps.className;
+        const language = className?.replace('language-', '');
+
+        if (language === 'mermaid' && typeof codeProps.children === 'string') {
+          return <Mermaid chart={codeProps.children} />;
+        }
+      }
+
+      return <pre className="my-4 overflow-x-auto rounded-lg bg-gray-900 p-4 text-gray-100">{children}</pre>;
+    },
     hr: () => <hr className="my-8 border-gray-300" />,
     table: ({ children }) => (
       <div className="my-4 overflow-x-auto">

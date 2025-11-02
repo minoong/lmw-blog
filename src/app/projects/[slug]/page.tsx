@@ -12,6 +12,7 @@ import { ViewTransition } from 'react';
 import { getWorkProject, getWorkProjects } from '@/lib/blog';
 import { COMPANY_LOGOS } from '@/lib/constants';
 import TableOfContents from '@/components/mdx/TableOfContents';
+import Mermaid from '@/components/mdx/Mermaid';
 import 'highlight.js/styles/github-dark.css';
 
 type Props = {
@@ -111,6 +112,23 @@ export default async function ProjectPage({ params }: Props) {
                       },
                     ],
                   ],
+                },
+              }}
+              components={{
+                pre: ({ children, ...props }) => {
+                  if (children && typeof children === 'object' && 'props' in children) {
+                    const codeProps = children.props;
+                    const className = codeProps?.className || '';
+
+                    if (className.includes('language-mermaid')) {
+                      const code = codeProps.children;
+                      if (typeof code === 'string') {
+                        return <Mermaid chart={code.trim()} />;
+                      }
+                    }
+                  }
+
+                  return <pre {...props}>{children}</pre>;
                 },
               }}
             />
