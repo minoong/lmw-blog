@@ -1,0 +1,224 @@
+---
+title: "부산은행 부산시 통합자금 시스템 구축"
+order: 9
+startDate: "2018-06-01"
+endDate: "2018-11-30"
+description: "부산시 운용계좌 지출·재무 업무 현황 보고서 시스템 구축"
+tags: ["JavaScript", "jQuery", "rMate", "Java", "Spring", "Oracle"]
+company: "유채널"
+---
+
+## 프로젝트 개요
+
+부산시의 운용계좌에 대한 지출·재무 업무 현황을 보고서를 통하여 확인할 수 있는 시스템을 구축했습니다. rMate Grid와 rMate Chart를 활용하여 대용량 데이터를 효율적으로 처리하고 시각화하고, 직접 설게/구현한 Dashboard UI 프레임워크를 통해 서비스에 적용하였습니다.
+
+## 프로젝트 정보
+
+- **고객사**: 부산은행, 부산시청
+- **포지션**: Front/Back-end
+- **개발 인원**: 6명
+
+## 기술 스택
+
+- **Frontend**: JavaScript, jQuery, rMate Grid, rMate Chart
+- **Backend**: Java, Spring Framework
+- **Database**: Oracle
+- **Server**: Linux, Windows
+
+## 담당 업무
+
+### 1. **rMate Grid 공통 모듈화**
+
+rMate Grid를 프로젝트 전반에서 효율적으로 사용하기 위해 공통 모듈로 확장하고, 다양한 기능을 추가했습니다.
+
+#### **LocalStorage를 활용한 상태값 저장**
+- 페이지 뒤로 이동 시 그리드 상태 복원
+- 정렬, 필터, 검색 조건 자동 저장
+
+#### **DTD 기반 Layout 시스템 개발**
+- 그리드의 레이아웃을 정의하는 `.dtd` 파일 생성
+- XML에서 DTD를 참조하여 그리드 구조 정의
+- 표준화된 그리드 레이아웃 템플릿 제공
+- XML 기반 선언적 그리드 설정
+- 재사용 가능한 그리드 구조 컴포넌트
+
+**구현 예시**:
+```xml
+<!-- grid-layout.dtd -->
+<!ELEMENT GridLayout (Column+)>
+<!ELEMENT Column (Field, Header, Width)>
+
+<!-- report-grid.xml -->
+<!DOCTYPE GridLayout SYSTEM "grid-layout.dtd">
+<GridLayout>
+  <Column>
+    <Field>accountNo</Field>
+    <Header>계좌번호</Header>
+    <Width>120</Width>
+  </Column>
+</GridLayout>
+```
+
+### 2. **Dashboard UI 컴포넌트 구현 (jQuery 플러그인 확장)**
+
+SPA(Single Page Application)와 같은 사용자 경험을 제공하기 위해 화면을 Top(GNB), Left Menu, Main 3가지 영역으로 나누고, 모든 상태값을 연동하는 커스텀 UI 프레임워크를 구축했습니다.
+
+#### **탭 기반 메뉴 시스템**
+- Left 메뉴의 하위 각 메뉴를 Main 화면의 탭으로 구성
+- 다중 탭 동시 오픈 및 전환 기능
+- 탭 닫기, 전체 닫기, 현재 탭 외 모두 닫기 기능
+- 탭 드래그 앤 드롭으로 순서 변경
+
+#### **3가지 영역 상태 동기화**
+- Top(GNB), Left, Main 영역의 상태값을 실시간 동기화
+- 메뉴 선택 시 Left 메뉴 활성화 상태와 Main 탭 동기화
+- 이벤트 기반 상태 전파 메커니즘 구현
+
+#### **자주 사용되는 메뉴 자동 즐겨찾기**
+- 사용자의 메뉴 사용 빈도 자동 추적
+- 사용 횟수 기반 자동 즐겨찾기 등록
+- 즐겨찾기 메뉴 빠른 접근 UI 제공하기
+
+### 3. **Admin Dashboard 구현 (jQuery 플러그인 확장)**
+
+관리자를 위한 대시보드를 jQuery 플러그인 형태로 확장하여 재사용 가능한 컴포넌트로 구현했습니다.
+
+- **위젯 시스템**
+  - 드래그 앤 드롭으로 위젯 배치 변경
+
+- **실시간 모니터링**
+  - 업무 처리 현황 통계
+
+- **알림 시스템**
+  - 중요 이벤트 알림 표시
+  - 미처리 업무 알림
+  - 시스템 공지사항
+
+### 4. **rMate Chart를 이용한 시각화 처리**
+
+부산시 운용계좌의 자금 데이터 시각화
+
+- **자금 운용 데이터 시각화**
+  - 계좌별 잔액 현황 차트
+  - 월별/분기별 지출 추이 분석
+  - 부서별 예산 집행 비교 분석
+
+- **인터랙티브 차트**
+  - 차트 데이터 필터링 및 검색
+  - 차트 데이터 엑셀 내보내기
+
+### 5. **성능 이슈로 인한 성능 최적화**
+
+다중 탭 구조에서 발생하는 성능 문제를 해결하기 위해 다양한 최적화 작업을 수행했습니다.
+
+#### **문제 상황**
+- 여러 화면을 Main의 탭(iframe)으로 구성하여 느려지는 성능 이슈 발생
+- 각 iframe마다 동일한 JavaScript 파일 중복 다운로드
+- 탭 닫기 시 메모리 누수 발생
+
+#### **해결 방안**
+
+**1. JavaScript 파일 중복 다운로드 최적화**
+- iframe에서 중복되는 `.js` 파일을 부모 화면에서 한 번만 다운로드하도록 변경
+- 공통 라이브러리(jQuery, rMate 등)를 부모 window에서 공유
+- iframe에서 `parent.window`를 통해 공통 라이브러리 접근
+- 네트워크 요청 감소 및 초기 로딩 속도 개선
+
+```javascript
+// 부모 화면에서 공통 라이브러리 로드
+window.commonLibs = {
+  jQuery: $,
+  rMateGrid: rMateGrid,
+  utils: commonUtils
+};
+
+// iframe에서 부모의 라이브러리 사용
+var $ = parent.window.commonLibs.jQuery;
+var rMateGrid = parent.window.commonLibs.rMateGrid;
+```
+
+**2. 메모리 누수 방지**
+- Main 탭(작업 화면) 제거 시 이벤트 리스너 명시적 제거
+- 타이머(setTimeout, setInterval) 정리
+- DOM 참조 해제 및 가비지 컬렉션 유도
+- iframe unload 시 클린업 함수 실행
+
+```javascript
+// 탭 닫기 시 클린업
+function cleanupTab(tabId) {
+  var iframe = $('#' + tabId);
+  var iframeWindow = iframe[0].contentWindow;
+
+  // 이벤트 리스너 제거
+  $(iframeWindow.document).off();
+
+  // 타이머 정리
+  iframeWindow.clearAllTimers();
+
+  // DOM 참조 해제
+  iframe.remove();
+}
+```
+
+## 개발 구현 내용
+
+### Frontend 개발
+
+1. **rMate Grid 공통 모듈**
+   - rMate Grid Wrapper 클래스 개발
+   - DTD 기반 레이아웃 시스템 구축
+   - LocalStorage 상태 관리 모듈
+   - 공통 옵션 및 이벤트 핸들러
+
+2. **Dashboard 프레임워크 구축**
+   - 레이아웃 매니저 컴포넌트
+   - 탭 메뉴 매니저 컴포넌트
+   - 상태 관리 및 동기화 메커니즘
+
+3. **UI 컴포넌트 라이브러리**
+   - 재사용 가능한 jQuery 플러그인 개발
+   - 모달, 알림, 툴팁 등 공통 컴포넌트
+   - 폼 유효성 검증 플러그인
+   - 달력, 날짜 선택기 등
+
+4. **rMate Chart 대시보드**
+   - 차트 래퍼 컴포넌트 개발
+   - 다양한 차트 타입 템플릿
+   - 데이터 바인딩 및 자동 업데이트
+
+### Backend 개발
+
+6. **Spring Framework**
+   - Spring MVC 패턴
+   - RESTful API 설계 및 구현
+
+7. **자금 관리 시스템**
+   - 운용계좌 관리 서비스
+   - 지출·재무 보고서 생성
+   - 은행 연동 인터페이스
+   - 전자결재 시스템 연동
+
+8. **권한 관리 시스템**
+   - 역할 기반 접근 제어
+   - 메뉴별 권한 설정
+   - 데이터 접근 권한 제어
+
+### Database 개발
+
+9. **Oracle DB**
+   - 자금 운용 관련 테이블 설계
+   - 보고서 데이터 집계 쿼리 최적화
+   - 인덱스 설계 및 성능 튜닝
+
+### 시스템 통합
+
+10. **은행 시스템 연동**
+    - 부산은행 전문 통신 프로토콜 연동
+    - 계좌 조회 및 거래 내역 조회
+    - 전문 파싱 및 에러 핸들링
+
+## 주요 성과
+
+- **성능 개선**: JavaScript 공유 및 메모리 최적화로 성능 향상
+- **사용자 경험**: 최대 30개 탭 동시 사용 가능한 업무 환경 제공
+- **개발 생산성**: DTD 기반 그리드 레이아웃 시스템으로 개발 시간 단축

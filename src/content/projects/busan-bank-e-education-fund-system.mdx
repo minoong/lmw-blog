@@ -48,7 +48,7 @@ jqGrid를 프로젝트 전반에서 효율적으로 사용하기 위해 공통 �
 
 ### 2. **사용자 UI 컴포넌트 구현 (jQuery 플러그인 확장)**
 
-SPA(Single Page Application)와 같은 사용자 경험을 제공하기 위해 화면을 Top, Left, Main 3가지 영역으로 나누고, 모든 상태값을 연동하는 커스텀 UI 프레임워크를 구축했습니다.
+SPA(Single Page Application)와 같은 사용자 경험을 제공하기 위해 화면을 Top(GNB), Left Menu, Main 3가지 영역으로 나누고, 모든 상태값을 연동하는 커스텀 UI 프레임워크를 구축했습니다.
 
 #### **탭 기반 메뉴 시스템**
 - Left 메뉴의 하위 각 메뉴를 Main 화면의 탭으로 구성
@@ -57,9 +57,8 @@ SPA(Single Page Application)와 같은 사용자 경험을 제공하기 위해 �
 - 탭 드래그 앤 드롭으로 순서 변경
 
 #### **3가지 영역 상태 동기화**
-- Top, Left, Main 영역의 상태값을 실시간 동기화
+- Top(GNB), Left, Main 영역의 상태값을 실시간 동기화
 - 메뉴 선택 시 Left 메뉴 활성화 상태와 Main 탭 동기화
-- Breadcrumb 자동 생성 및 업데이트
 - 이벤트 기반 상태 전파 메커니즘 구현
 
 #### **자주 사용되는 메뉴 자동 즐겨찾기**
@@ -84,7 +83,7 @@ SPA(Single Page Application)와 같은 사용자 경험을 제공하기 위해 �
 
 ### 4. **High Chart를 이용한 시각화 처리**
 
-교육청의 재정 업무 데이터를 효과적으로 시각화하여 의사결정을 지원했습니다.
+교육청의 재정 업무 데이터 시각화
 
 - **원장 데이터 시각화**
   - 예산 집행 현황 차트 (막대, 선형, 원형)
@@ -116,7 +115,7 @@ SPA(Single Page Application)와 같은 사용자 경험을 제공하기 위해 �
 
 ### Backend 개발
 
-5. **Spring Framework 기반 서비스 레이어**
+5. **Spring Framework**
    - Spring MVC 패턴
    - RESTful API 설계 및 구현
 
