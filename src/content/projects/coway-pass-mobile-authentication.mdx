@@ -1,0 +1,157 @@
+---
+title: '코웨이패스 서비스 런칭'
+order: 2
+startDate: '2022-10-01'
+endDate: '2023-06-30'
+description: '모바일 주문 본인인증 서비스 - KG이니시스/PASS 연동, AWS Lambda 기반 동적 OG 서비스 구축'
+tags: ['React', 'TypeScript', 'Vite', 'React Router', 'AWS Lambda', 'KG이니시스', 'PASS', 'OpenGraph']
+company: "코웨이"
+---
+
+## 프로젝트 개요
+
+코웨이 제품을 주문서에 대한 본인인증을 수행할 수 있는 서비스입니다. KG이니시스와 PASS 본인인증 API를 연동하여 안전한 본인확인 프로세스를 제공하며, 카카오톡 공유 시 동적 메타태그를 제공하여 사용자 경험을 개선했습니다.
+
+**서비스 URL**: [코웨이패스](https://pass.coway.com) (주문번호 검증으로 서비스 확인 불가)
+
+## 기술 스택
+
+- **Frontend**: React, TypeScript
+- **Build Tool**: Vite
+- **Routing**: React Router
+- **Authentication**: KG이니시스, PASS 본인인증 API
+- **Infrastructure**: AWS Lambda, CloudFront
+- **Optimization**: 반응형 웹 디자인, 웹 접근성, 카카오톡 인앱 브라우저 최적화
+
+## 프로젝트 정보
+
+- **역할**: 업무 PL (Project Leader)
+- **담당**: 프론트엔드 설계, 개발, 인프라 구축
+
+## 서비스 화면 플로우
+
+코웨이패스는 크게 2가지 프로세스로 구성되어 있으며, 각 프로세스는 URL이 구분되어 있어 OpenGraph 메타태그를 다르게 제공합니다.
+
+```mermaid
+graph TD
+    Start([카카오톡 링크 접속]) --> CheckURL{URL 구분}
+
+    CheckURL -->|본인인증 URL| Auth[1. 본인인증 프로세스]
+    CheckURL -->|계약서 URL| Contract[2. 계약서 확인 프로세스]
+
+    Auth --> AuthRequest[본인인증 요청]
+    AuthRequest --> AuthPerform[본인인증 수행<br/>KG이니시스/PASS]
+    AuthPerform --> AuthCallback[Callback URL 호출<br/>상태코드별 결과 페이지]
+    AuthCallback --> AuthComplete[본인인증 완료]
+    AuthComplete --> Contract
+
+    Contract --> CheckAuthValidity{본인인증<br/>유효기간 확인}
+    CheckAuthValidity -->|만료| ReAuth[재인증 요청]
+    ReAuth --> AuthPerform
+
+    CheckAuthValidity -->|유효| ContractView[계약서 확인]
+    ContractView --> ContractConfirm[계약서 확인 완료]
+    ContractConfirm --> SAPIntegration[SAP 연동]
+    SAPIntegration --> End([계약서 서명 완료])
+
+    style Auth fill:#e1f5ff
+    style Contract fill:#fff4e1
+    style AuthPerform fill:#ffd4d4
+    style ContractView fill:#d4ffd4
+```
+
+**프로세스 설명**:
+
+1. **본인인증 프로세스**:
+   - URL: `/auth` 또는 `/certification`
+   - 본인인증 요청 → KG이니시스/PASS 인증 → Callback URL → 결과 페이지
+
+2. **계약서 확인 프로세스**:
+   - URL: `/contract` 또는 `/agreement`
+   - 본인인증 유효기간 체크 → (만료 시 재인증) → 계약서 확인 → SAP 연동
+
+## 주요 과제
+
+### 1. 외부 본인인증 API 연동
+
+백엔드 개발자와 협업하여 KG이니시스와 PASS 본인인증 서비스를 연동했습니다. Form 전송 방식으로 외부 본인인증 URL에 연동하고, 본인인증 방식에 따라 API body에 필요한 파라미터를 포함하도록 구현했습니다.
+
+본인인증 결과는 백엔드와 협의한 상태코드를 기반으로 callback URL 호출 시 처리되며, 상태코드에 맞는 결과 페이지를 선언적 컴포넌트로 구현하여 유지보수성을 높였습니다.
+
+#### 본인인증 처리 플로우
+
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Frontend as 브라우저
+    participant Backend as 백엔드 API
+    participant Auth as 본인인증 서비스<br/>(KG이니시스/PASS)
+
+    User->>Frontend: 본인인증 요청
+    Frontend->>Backend: 본인인증 초기화 요청
+    Backend->>Backend: 트랜잭션 ID 생성
+    Backend-->>Frontend: 인증 파라미터 반환
+
+    Frontend->>Frontend: Form 데이터 생성<br/>(방식별 파라미터 포함)
+    Frontend->>Auth: Form 전송으로<br/>본인인증 URL 호출
+
+    Auth->>User: 본인인증 수행<br/>(휴대폰/PASS 앱)
+    User->>Auth: 인증 정보 입력/승인
+
+    Auth->>Backend: 인증 결과 전송
+    Backend->>Backend: 결과 검증 및<br/>상태코드 생성
+
+    Backend->>Frontend: Callback URL 호출<br/>(상태코드 포함)
+
+    alt 인증 성공 (200)
+        Frontend->>User: 성공 페이지 렌더링
+    else 인증 실패 (400)
+        Frontend->>User: 실패 페이지 렌더링
+    else 타임아웃 (408)
+        Frontend->>User: 타임아웃 페이지 렌더링
+    else 시스템 오류 (500)
+        Frontend->>User: 오류 페이지 렌더링
+    end
+```
+
+#### 상태코드별 선언적 컴포넌트 구현
+
+백엔드와 협의한 상태코드를 기반으로 결과 페이지를 선언적으로 구현했습니다.
+
+각 상태에 맞는 컴포넌트를 분리하여 구현함으로써 코드의 가독성과 유지보수성을 향상시켰습니다.
+
+### 3. AWS Lambda 기반 동적 OpenGraph 서비스
+
+코웨이패스는 본인인증과 계약서 확인 두 가지 프로세스로 구성되어 있으며, 각 프로세스는 URL로 구분됩니다. Lambda@Edge를 활용하여 URL에 따라 서로 다른 OpenGraph 메타태그를 동적으로 생성하여, 카카오톡 공유 시 프로세스별 적절한 미리보기를 표시했습니다.
+
+#### URL별 메타태그 분기 처리
+
+아래 url 에 따라 타이틀, 디스크립션, 이미지를 다르게 처리합니다.
+
+- 본인인증 URL (`/auth`):
+- 계약서 확인 URL (`/contract`):
+
+### 4. 카카오톡 인앱 브라우저 최적화
+
+카카오톡 인앱 브라우저 환경에서 발생하는 다양한 이슈를 해결하고 최적화했습니다.
+
+#### 뒤로가기 이벤트 감지 및 제어
+
+본인인증 및 계약서 확인 프로세스에서 사용자가 뒤로가기 버튼을 통해 중요한 단계를 건너뛰는 것을 방지하기 위해 `popstate` 이벤트를 활용한 뒤로가기 제어 기능을 구현했습니다.
+
+**구현 방법**:
+- `history.pushState()`로 가상의 히스토리 엔트리 추가
+- `popstate` 이벤트 리스너로 뒤로가기 감지
+- 중요 단계(본인인증 진행 중, 계약서 작성 중)에서 뒤로가기 방지
+
+### 5. Vite 기반 빌드 최적화
+
+Vite를 활용하여 빠른 개발 환경과 최적화된 프로덕션 빌드를 구성했습니다.
+
+#### 번들 최적화
+
+코드 스플리팅과 트리 쉐이킹을 통해 번들 크기를 최소화했습니다:
+- 라우트별 코드 스플리팅 (React.lazy)
+- 외부 라이브러리 Chunk 분리
+- 사용하지 않는 코드 제거 (Tree-shaking)
+- CSS 최적화 및 압축
