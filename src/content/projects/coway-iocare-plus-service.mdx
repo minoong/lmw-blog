@@ -1,0 +1,178 @@
+---
+title: 'IoCare+ IoT 글로벌 서비스'
+order: 4
+startDate: '2023-09-04'
+endDate: '2025-10-14'
+description: 'IoT 제품 원격 제어 및 모니터링 - 모바일 앱 내 웹뷰, 6개국 서비스'
+tags: ['Next.js', 'TypeScript', 'SCSS', 'Framer Motion', 'WebSocket', 'SWR', 'Jotai', 'AWS CodeDeploy', 'AWS EC2', 'AWS CloundFront', 'Github Actions', 'i18next', 'i18n']
+company: "코웨이"
+---
+
+| IoT 제품연동 | 사용량 리포트 | 고객서비스 |
+|:---:|:---:|:---:|
+| ![IoCare IoT 제품연동](/projects/IoCare_IoT_제품연동.gif) | ![IoCare 사용량 리포트](/projects/IoCare_사용량_리포트.gif) | ![IoCare 고객서비스](/projects/IoCare_고객서비스.gif) |
+
+*웹뷰 페이지 일부만 캡처했습니다.*
+
+## 프로젝트 개요
+
+코웨이 글로벌 IoT 제품(정수기, 공기청정기, 비데, 매트리스)을 원격 제어하고 모니터링하는 모바일 앱 내 웹뷰 서비스입니다. iOS/Android 네이티브 앱과 연동하여 한국, 미국, 말레이시아 등 6개국에서 운영 중입니다.
+
+**서비스 URL**: [코웨이몰](https://www.coway.com/cowayservice/iocare), [IoCare+](https://iocare2.coway.com/ko/intro)
+
+## 기술 스택
+
+- **Frontend**: Next.js (App Router), TypeScript, SCSS, Framer Motion
+- **State**: Jotai, SWR
+- **Deploy**: GitHub Actions, AWS CodeDeploy
+
+## 프로젝트 정보
+
+- **역할**: 업무 PL
+- **담당**: 프론트엔드 설계, 개발, 팀 서비스 리딩, 연관부서 협의
+
+## 주요 과제
+
+### 1. App Router 설계 및 FSD 아키텍처
+
+- Next.js 13 App Router 구조 설계 및 구현
+- FSD(Feature-Sliced Design) 아키텍처 적용으로 도메인 모듈 분리
+- 공통 레이아웃 설계/구현
+- 서비스 페이지별 SSR/CSR 렌더링 분리
+- 세그먼트별 로딩/에러 페이지 구성
+- Parallel Routes/Intercepting Routes 기술 검토 후 미적용 결정 (fullscreen 모달/다이얼로그 기반 funnel 패턴에 부적합)
+
+### 2. 커스텀 바텀시트 컴포넌트 구현
+
+react-modal-sheet 라이브러리의 기능을 직접 구현하여 프로젝트 요구사항에 최적화된 바텀시트 컴포넌트를 개발했습니다.
+
+![IoCare IoT 제품연동](/projects/IoCare_IoT_제품연동.gif)
+
+- Framer Motion 을 활용한 드래그 이벤트 및 제스처 처리 및 transition 관리
+- 드래그 가속도 계산: 사용자의 드래그 속도를 감지하여 자연스러운 스냅 포인트 처리
+- 핸들바 영역과 컨텐츠 영역의 독립적인 터치 이벤트 처리
+  - 핸들바: 항상 드래그 가능
+  - 컨텐츠: 스크롤 상단에서만 드래그 가능 (스크롤 충돌 방지)
+- 마지막 드래그 위치 값 계산을 통한 스냅 포인트(확장/축소/닫기) 자동 처리
+- 관성 스크롤 구현으로 네이티브 앱과 유사한 UX 제공
+
+### 3. 네이티브-웹뷰 인터페이스 설계
+
+iOS/Android 네이티브 앱과 웹뷰 간 초기 데이터 전달 및 페이지 Depth 정의
+
+- 쿼리스트링을 통한 초기 렌더링 파라미터 전달 (토큰, locale, 디바이스 정보 등)
+- HTTP 헤더를 통한 앱 버전, 플랫폼 정보 전달
+- 서버 컴포넌트에서 헤더 파싱하여 플랫폼별 조건부 렌더링 구현
+
+### 4. i18next (App Router)
+
+글로벌 6개국 서비스로 국가코드별 다국어 지원 및 번역 파일 파싱/배포를 개발하였습니다.
+
+- Next.js App Router 기반 i18next 설계/구현
+- 국가코드(`[locale]`) 기반 동적 라우팅 설계/구현
+- Next.js 미들웨어로 locale 없는 접근 처리 (i18next-http-middleware 활용)
+- 서버/클라이언트 컴포넌트 모두에서 번역 지원
+- 국가별 번역 파일 동적 로딩으로 초기 번들 최소화
+
+### 5. Axios 인터셉터 및 토큰 갱신 자동화
+
+토큰 관리 및 만료 시 자동 갱신 필요, 토큰 만료 응답 시 중복 API 요청에 따른 중복 갱신 요청 방지 코드 구현
+
+- 쿠키 기반 액세스/리프레시 토큰 관리
+- Axios Interceptor 토큰 관리 및 갱신
+- 중복 갱신 요청 방지: 토큰 갱신 중 추가 토큰 만료 요청을 큐에 대기시키고, 갱신 완료 후 큐의 요청들을 비동기로 재시도
+- 갱신 실패 시 로그인 페이지 리다이렉트 (네이티브 브릿지 호출)
+
+### 6. SWR 데이터 캐싱 전략
+
+IoT 디바이스 데이터 효율적 캐싱 및 최신 상태 유지 및 리패치
+
+- SWR로 서버 상태 관리 및 캐싱 구현
+- Stale-While-Revalidate 패턴으로 빠른 UI 응답성 확보
+- IoT 디바이스 상태 데이터 캐시 전략 수립
+- SWR 미들웨어에서 비즈니스 로직 공통 처리
+  - 서비스 제품 및 사용자 권한에 따른 로직 처리
+
+### 7. API 에러 핸들링 (Next.js 공식 가이드 기준)
+
+API Code별 에러/권한 처리
+
+- Next.js 에러 핸들링 기준 설계/구현
+  - 세그먼트 Error Boundary 로 에러 전파 방지
+  - 글로벌 Error Boundary 서비스 에러 핸들링 구현
+- HTTP Code, API Code별 커스텀 Error Class 구현
+  - Error 을 상속받아 제품권한, 장소권한, 사용자 권한 등을 클래스 별로 구분하여 래핑하여 throw 및 catch 처리
+- 에러 타입에 따른 사용자 메시지 및 복구 액션 개발
+
+### 8. 네트워크 끊김 감지 및 토스트 UI
+
+네트워크 연결 끊김 시 사용자 액션에 따른 노티 기능 개발
+
+- `navigator.onLine` API로 네트워크 상태 실시간 감지
+- `online`/`offline` 이벤트 리스너로 네트워크 상태 추적
+- 사용자 액션 발생 시에만 토스트 UI 표시 (라우터 이동, API 호출 시도)
+- 재연결 시 자동으로 pending 요청 재시도
+
+### 9. 네이티브 브릿지 통합 모듈
+
+iOS/Android WebView 각기 다른 통신 방식, 비동기 처리 복잡성을 아래와 같이 통합하여 개발했습니다.
+
+- TypeScript 기반 통합 브릿지 모듈 설계로 플랫폼 차이 추상화
+- 양방향 통신 프로토콜 구축
+  - 웹→앱: `window.webkit.messageHandlers` (iOS), `AndroidInterface` (Android)
+  - 앱→웹: `window.postMessage` 이벤트 리스너 통합 관리
+- 네이티브 콜백을 Promise 패턴으로 래핑하여 async/await 지원
+- 타입 안전성을 위한 TypeScript 인터페이스 정의
+
+### 10. 네이티브 네비게이션 제어
+
+레이어 팝업, 닫기 버튼 정책 페이지에서 네이티브 뒤로가기 제어 필요
+
+- AOS 백버튼 제어: 브릿지 호출로 뒤로가기 방지 (레이어 팝업, 닫기 버튼 페이지)
+- iOS 스와이프 제어: 페이지별 정책에 따라 스와이프 뒤로가기 활성화/비활성화
+
+### 11. WebSocket 실시간 IoT 데이터 동기화
+
+IoT 디바이스 실시간 상태 변경을 웹뷰에 즉시 반영 필요
+
+- WebSocket 연결 관리 및 재연결 로직 구현
+- Jotai Atom으로 실시간 디바이스 상태 전역 관리
+- 연결 끊김 시 자동 재연결 및 상태 복구
+- 배치 업데이트로 렌더링 최적화
+
+### 12. OpenAPI Generator 타입 자동 생성
+
+API 스펙 변경 시 타입 정의 수동 업데이트의 휴먼 에러 발생을 최소화했습니다.
+
+- OpenAPI Generator CLI로 Swagger 스펙에서 TypeScript 타입 자동 생성 스크립트 개발
+
+### 13. Google Sheets API 번역 자동화 CLI
+
+번역 파일 수동 관리의 비효율성 및 배포 프로세스 개선
+
+- Google Sheets API를 활용한 번역 데이터 파싱 CLI 개발
+- 번역 파일 S3/CDN 자동 배포 워크플로우 구축
+- 번역 업데이트 시 실시간 배포로 앱스토어 업데이트 불필요
+
+### 14. CI/CD
+
+- GitHub Actions를 통한 빌드 자동화
+- AWS CodeDeploy + Auto Scaling Group으로 EC2 배포
+- Blue/Green 배포 전략으로 무중단 배포 구현
+- CloudFront CDN으로 글로벌 응답 속도 최적화
+
+### 15. 팀 컨벤션
+
+- ESLint, Prettier, Husky 커스텀 규칙 의견 취합 및 Config 관리
+- Pre-commit Hook으로 커밋 전 자동 검증 적용
+
+### 16. 프로젝트 리딩
+
+프로젝트 리더로서 팀 리딩과 연관부서 협의를 진행했습니다.
+
+- 주간 정례회의 참여 및 이슈 조율
+- 백엔드 팀과 API 스펙 협의
+- 네이티브 앱 팀과 웹뷰 통신 인터페이스 정의
+- IoT 기획팀/개발팀 팀과 데이터 프로토콜 협의
+- Figma 디자인 협의 및 디자인 시스템 구축
+- 퍼블리싱 가이드 및 프론트엔드개발팀 내제화
