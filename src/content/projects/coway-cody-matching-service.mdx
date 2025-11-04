@@ -4,7 +4,7 @@ order: 1
 startDate: '2022-06-01'
 endDate: '2023-06-30'
 description: '위치 기반 매칭 서비스 - 고객과 코디네이터를 실시간으로 연결하는 서비스 개발 및 PL 업무'
-tags: ['React', 'TypeScript', 'Vite', 'TanStack Query', 'React Router v6', 'Geolocation API', 'T MAP API', 'GA4', 'GTM']
+tags: ['React', 'TypeScript', 'Vite', 'TanStack Query', 'React Router v6', 'E2E:Cypress', 'Geolocation API', 'T MAP API', 'GA4', 'GTM']
 company: "코웨이"
 ---
 
@@ -23,6 +23,7 @@ company: "코웨이"
 - **Location Services**: TMAP API, Geolocation API, KAKAO 우편번호 서비스
 - **Analytics**: GA4 (Google Analytics 4), GTM (Google Tag Manager)
 - **Notification**: SMS, 카카오톡 알림톡 API
+- **E2E Testing**: Cypress
 
 ## 주요 과제
 
@@ -94,3 +95,43 @@ GA4와 GTM을 활용하여 사용자 행동을 분석하고 서비스를 최적�
 #### GTM 커스텀 트리거
 
 위치 권한 거부율과 매칭 대기 이탈 지점을 추적하여 사용자 이탈 원인을 추적할 수 있도록 GTM 커스텀 트리거를 설정했습니다.
+
+### 8. Cypress E2E 테스트
+
+실시간 코디 매칭 시나리오를 멀티 브라우저 환경으로 테스트
+
+**테스트 환경 구성**:
+- Cypress를 활용한 E2E 테스트 자동화
+- 3개의 독립적인 브라우저 창 시뮬레이션 (고객, 코디1, 코디2)
+- 실제 매칭 프로세스 전체 플로우 검증
+
+**매칭 경쟁 시나리오 테스트**:
+
+1. **고객 매칭 요청**:
+   - 고객 브라우저에서 위치 기반 매칭 요청 실행
+   - 매칭 ID 생성 및 대기 상태 진입
+
+2. **매칭 ID 조회**:
+   - API를 통해 생성된 매칭 ID 조회
+   - 해당 매칭에 할당된 코디네이터 목록 중 2개 ID 추출
+
+3. **코디 경쟁 시나리오**:
+   - 코디1, 코디2 브라우저를 동시에 실행
+   - 두 코디가 동일한 매칭 요청에 대해 수락 경쟁
+   - 먼저 수락한 코디가 매칭 성공, 늦은 코디는 실패 처리
+
+**테스트 케이스**:
+
+**매칭 완료 케이스**:
+- 코디1이 먼저 수락 → 매칭 완료 상태 확인
+- 고객 화면에 매칭된 코디 정보 표시 검증
+- 코디2는 "이미 매칭된 요청" 메시지 확인
+
+**매칭 실패 케이스**:
+- 두 코디 모두 수락하지 않고 타임아웃
+- 고객 화면에 매칭 실패 메시지 표시
+- 재매칭 요청 버튼 활성화 확인
+
+**장점**:
+- 실제 사용자 시나리오 기반 테스트로 신뢰도 향상
+- 멀티 브라우저 동시 실행으로 경쟁 조건(race condition) 검증
