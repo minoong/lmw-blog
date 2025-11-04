@@ -8,6 +8,7 @@ import HamburgerIcon from '@/components/layout/HamburgerIcon';
 import MobileDrawer from '@/components/layout/MobileDrawer';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import { useSpyElem } from '@/lib/useSpyElem';
+import ScrollProgressIndicator from '@/components/ui/ScrollProgressIndicator';
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -77,6 +78,7 @@ export default function Navigation() {
             </div>
           </div>
         </div>
+        <ScrollProgressIndicator />
       </nav>
 
       {/* 모바일 드로어 */}
