@@ -1,0 +1,157 @@
+---
+title: 'IoCare+/NECOA Next.js v15 업그레이드'
+order: 9
+description: 'Next.js v13에서 v15로 major 버전 업그레이드 및 React 19 마이그레이션'
+tags: ['Next.js', 'React', 'Migration', 'Testing']
+startDate: '2025-07-01'
+endDate: '2025-09-30'
+company: "코웨이"
+---
+
+# IoCare+/NECOA Next.js v15 업그레이드
+
+IoCare+(한국 법인)와 NECOA(미국 법인) 서비스의 Next.js를 v13에서 v15로 major 버전 업그레이드했습니다. React 19 마이그레이션과 함께 디펜던시 충돌을 해결하고, 철저한 테스트를 통해 안정적인 배포를 완료했습니다.
+
+## 기술 스택
+
+- **Next.js** - v13 → v15
+- **React** - v18 → v19
+- **TypeScript** - v5.x (breaking changes 대응)
+- **Testing** - Cypress (E2E), Vitest (Unit)
+
+---
+
+## 1. 업그레이드 배경
+
+### Next.js 15 주요 개선 사항
+- **Turbopack** 안정화로 빌드 성능 향상
+- **React 19** 공식 지원
+- **Partial Prerendering (PPR)** 실험적 기능
+- **fetch 캐싱 기본값 변경** (`force-cache` → `no-store`)
+- **동적 API** 변경 (`headers()`, `cookies()` 동기화)
+
+### React 19 주요 변경 사항
+- **Actions** 공식 도입
+- **useOptimistic**, **useFormStatus** 안정화
+- **ref를 props로 전달** 가능
+- **Context.Provider** 대신 `Context` 직접 사용
+
+---
+
+## 2. 주요 작업 내용
+
+### Next.js 15 Breaking Changes 대응
+
+**1. fetch 캐싱 기본값 변경**
+
+```typescript
+// Before (Next.js 13)
+fetch('https://api.example.com/data') // 기본값: force-cache
+
+// After (Next.js 15)
+fetch('https://api.example.com/data') // 기본값: no-store
+fetch('https://api.example.com/data', { cache: 'force-cache' }) // 명시적 설정 필요
+```
+
+**대응 방안**:
+- 캐싱이 필요한 모든 fetch에 `cache: 'force-cache'` 명시
+- ISR 사용 중인 페이지는 `revalidate` 옵션 재검토
+
+**2. 동적 API 동기화**
+
+```typescript
+// Before (Next.js 13)
+import { headers, cookies } from 'next/headers'
+
+export async function GET() {
+  const headersList = await headers()
+  const cookieStore = await cookies()
+}
+
+// After (Next.js 15)
+import { headers, cookies } from 'next/headers'
+
+export async function GET() {
+  const headersList = headers()  // 동기 함수로 변경
+  const cookieStore = cookies()
+}
+```
+
+**3. Route Handlers 변경**
+
+- `GET`, `POST` 등 named export 필수
+- `request` 객체 활용 방식 변경
+
+---
+
+## 3. 디펜던시 이슈 해결
+
+### peer dependency 충돌
+
+**문제**: React 19가 정식 릴리즈되지 않은 상태에서 일부 라이브러리가 React 18만 지원
+
+**해결**:
+```json
+// package.json
+{
+  "overrides": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
+```
+
+### 주요 라이브러리 버전 업데이트
+
+| 라이브러리 | Before | After | 비고 |
+|-----------|--------|-------|------|
+| swr | v1.x | v2.x | React 19 호환성 |
+| jotai | v2.0 | v2.9 | React 19 호환성 |
+| react-i18next | v12.x | v14.x | React 19 지원 |
+| framer-motion | v10.x | v11.x | ref props 변경 대응 |
+
+### TypeScript 타입 에러 해결
+
+```typescript
+// @types/react v19 업데이트로 인한 타입 변경
+// FormEvent → React.FormEvent
+// MouseEvent → React.MouseEvent
+
+// Before
+const handleSubmit = (e: FormEvent) => { ... }
+
+// After
+const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => { ... }
+```
+
+---
+
+## 4. 테스트 수행
+
+### 회귀 테스트
+
+**수동 테스트 항목**:
+- [ ] 모든 서비스 페이지 동작 (API 요청 포함)
+- [ ] 디바이스 상태 실시간 업데이트 (WebSocket)
+- [ ] 네이티브 브릿지 통신 (iOS/Android)
+- [ ] 커스텀 바텀시트 동작 (framer-motion 관련 로직 수정)
+- [ ] 에러 바운더리 처리
+
+**결과**: 주요 기능 모두 정상 동작 확인
+
+---
+
+## 5. 배포 전략
+
+### 롤백 계획
+
+- 문제 발생 시 즉시 이전 버전으로 롤백 가능 (Github Tag, AWS CodeDeploy)
+- 실제 롤백 발생 없음
+
+---
+
+## 관련 프로젝트
+
+- [IoCare+ IoT 글로벌 서비스](/projects/coway-iocare-plus-service)
+- [NECOA IoT 미국 서비스](/projects/coway-necoa-service)
+- [IoCare+/NECOA 모노레포 통합](/projects/coway-iocare-monorepo)
