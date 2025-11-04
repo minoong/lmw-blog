@@ -14,22 +14,22 @@ export default function ProjectTechStack({ tags }: ProjectTechStackProps) {
   return (
     <section className="py-4">
       <div className="space-y-4">
-        <Marquee speed={40} gradient={false}>
+        <Marquee speed={50} gradient={false}>
           {topTags.map((tag, index) => (
             <div
               key={`top-${tag}-${index}`}
-              className="dark:border-claude-border dark:bg-claude-surface mx-2 flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-gray-700 dark:text-white"
+              className="dark:bg-claude-border mx-2 flex items-center gap-2 rounded bg-gray-200 px-2 py-0.5 text-sm text-gray-600 dark:text-gray-400"
             >
               <span className="font-semibold whitespace-nowrap">{tag}</span>
             </div>
           ))}
         </Marquee>
 
-        <Marquee speed={40} gradient={false} direction="right">
+        <Marquee speed={50} gradient={false} direction="right">
           {bottomTags.map((tag, index) => (
             <div
               key={`bottom-${tag}-${index}`}
-              className="dark:border-claude-border dark:bg-claude-surface mx-2 flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-gray-700 dark:text-white"
+              className="dark:bg-claude-border mx-2 flex items-center gap-2 rounded bg-gray-200 px-2 py-0.5 text-sm text-gray-600 dark:text-gray-400"
             >
               <span className="font-semibold whitespace-nowrap">{tag}</span>
             </div>
