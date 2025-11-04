@@ -4,7 +4,7 @@ order: 4
 startDate: '2023-09-04'
 endDate: '2025-10-14'
 description: 'IoT 제품 원격 제어 및 모니터링 - 모바일 앱 내 웹뷰, 6개국 서비스'
-tags: ['Next.js', 'TypeScript', 'SCSS', 'Framer Motion', 'WebSocket', 'SWR', 'Jotai', 'AWS CodeDeploy', 'AWS EC2', 'AWS CloundFront', 'Github Actions', 'i18next', 'i18n']
+tags: ['Next.js', 'TypeScript', 'SCSS', 'Framer Motion', 'WebSocket', 'SWR', 'Jotai', 'AWS CodeDeploy', 'AWS EC2', 'AWS CloundFront', 'AWS Cognito', 'AWS Secrets Manager', 'Github Actions', 'i18next', 'i18n']
 company: "코웨이"
 ---
 
@@ -24,7 +24,7 @@ company: "코웨이"
 
 - **Frontend**: Next.js (App Router), TypeScript, SCSS, Framer Motion
 - **State**: Jotai, SWR
-- **Deploy**: GitHub Actions, AWS CodeDeploy
+- **Deploy**: GitHub Actions, AWS CodeDeploy, AWS EC2, AWS CloudFront
 
 ## 프로젝트 정보
 
@@ -93,7 +93,19 @@ IoT 디바이스 데이터 효율적 캐싱 및 최신 상태 유지 및 리패�
 - SWR 미들웨어에서 비즈니스 로직 공통 처리
   - 서비스 제품 및 사용자 권한에 따른 로직 처리
 
-### 7. API 에러 핸들링 (Next.js 공식 가이드 기준)
+### 7. Instrumentation을 활용한 서버 사이드 캐싱
+
+기준정보 API 응답 데이터를 서버(AWS EC2)에 캐싱하여 API 호출 최소화 및 응답 속도 개선
+
+- Next.js Instrumentation API(`instrumentation.ts`)를 활용한 서버 시작 시점 초기화
+- AWS Cognito로 서비스 전용 인증 토큰 발급 및 관리
+- 기준정보 API 응답을 서버(AWS EC2)에 File 을 생성하여 캐싱
+- 주기적 갱신 로직으로 최신 데이터 유지 (24시간 주기)
+  - 요청/응답 실패 케이스에 대한 재요청 로직 구현
+- 서버 재시작 시에도 자동으로 캐시 재구축
+- 클라이언트 요청 시 메모리 캐시에서 즉시 응답
+
+### 8. API 에러 핸들링 (Next.js 공식 가이드 기준)
 
 API Code별 에러/권한 처리
 
@@ -104,7 +116,7 @@ API Code별 에러/권한 처리
   - Error 을 상속받아 제품권한, 장소권한, 사용자 권한 등을 클래스 별로 구분하여 래핑하여 throw 및 catch 처리
 - 에러 타입에 따른 사용자 메시지 및 복구 액션 개발
 
-### 8. 네트워크 끊김 감지 및 토스트 UI
+### 9. 네트워크 끊김 감지 및 토스트 UI
 
 네트워크 연결 끊김 시 사용자 액션에 따른 노티 기능 개발
 
@@ -113,7 +125,7 @@ API Code별 에러/권한 처리
 - 사용자 액션 발생 시에만 토스트 UI 표시 (라우터 이동, API 호출 시도)
 - 재연결 시 자동으로 pending 요청 재시도
 
-### 9. 네이티브 브릿지 통합 모듈
+### 10. 네이티브 브릿지 통합 모듈
 
 iOS/Android WebView 각기 다른 통신 방식, 비동기 처리 복잡성을 아래와 같이 통합하여 개발했습니다.
 
@@ -124,14 +136,14 @@ iOS/Android WebView 각기 다른 통신 방식, 비동기 처리 복잡성을 �
 - 네이티브 콜백을 Promise 패턴으로 래핑하여 async/await 지원
 - 타입 안전성을 위한 TypeScript 인터페이스 정의
 
-### 10. 네이티브 네비게이션 제어
+### 11. 네이티브 네비게이션 제어
 
 레이어 팝업, 닫기 버튼 정책 페이지에서 네이티브 뒤로가기 제어 필요
 
 - AOS 백버튼 제어: 브릿지 호출로 뒤로가기 방지 (레이어 팝업, 닫기 버튼 페이지)
 - iOS 스와이프 제어: 페이지별 정책에 따라 스와이프 뒤로가기 활성화/비활성화
 
-### 11. WebSocket 실시간 IoT 데이터 동기화
+### 12. WebSocket 실시간 IoT 데이터 동기화
 
 IoT 디바이스 실시간 상태 변경을 웹뷰에 즉시 반영 필요
 
@@ -140,13 +152,13 @@ IoT 디바이스 실시간 상태 변경을 웹뷰에 즉시 반영 필요
 - 연결 끊김 시 자동 재연결 및 상태 복구
 - 배치 업데이트로 렌더링 최적화
 
-### 12. OpenAPI Generator 타입 자동 생성
+### 13. OpenAPI Generator 타입 자동 생성
 
 API 스펙 변경 시 타입 정의 수동 업데이트의 휴먼 에러 발생을 최소화했습니다.
 
 - OpenAPI Generator CLI로 Swagger 스펙에서 TypeScript 타입 자동 생성 스크립트 개발
 
-### 13. Google Sheets API 번역 자동화 CLI
+### 14. Google Sheets API 번역 자동화 CLI
 
 번역 파일 수동 관리의 비효율성 및 배포 프로세스 개선
 
@@ -154,19 +166,19 @@ API 스펙 변경 시 타입 정의 수동 업데이트의 휴먼 에러 발생�
 - 번역 파일 S3/CDN 자동 배포 워크플로우 구축
 - 번역 업데이트 시 실시간 배포로 앱스토어 업데이트 불필요
 
-### 14. CI/CD
+### 15. CI/CD
 
 - GitHub Actions를 통한 빌드 자동화
 - AWS CodeDeploy + Auto Scaling Group으로 EC2 배포
 - Blue/Green 배포 전략으로 무중단 배포 구현
 - CloudFront CDN으로 글로벌 응답 속도 최적화
 
-### 15. 팀 컨벤션
+### 16. 팀 컨벤션
 
 - ESLint, Prettier, Husky 커스텀 규칙 의견 취합 및 Config 관리
 - Pre-commit Hook으로 커밋 전 자동 검증 적용
 
-### 16. 프로젝트 리딩
+### 17. 프로젝트 리딩
 
 프로젝트 리더로서 팀 리딩과 연관부서 협의를 진행했습니다.
 
