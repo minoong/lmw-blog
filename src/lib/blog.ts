@@ -213,3 +213,19 @@ export function getWorkProjectsByCompany(company: string): WorkProject[] {
   const projects = getWorkProjects();
   return projects.filter((project) => project.company === company);
 }
+
+export function getAllProjectTags(): string[] {
+  const workProjects = getWorkProjects();
+  const toyProjects = getToyProjects();
+  const tags = new Set<string>();
+
+  workProjects.forEach((project) => {
+    project.tags?.forEach((tag) => tags.add(tag));
+  });
+
+  toyProjects.forEach((project) => {
+    project.tags?.forEach((tag) => tags.add(tag));
+  });
+
+  return Array.from(tags).sort();
+}
