@@ -1,0 +1,77 @@
+---
+title: 'NECOA IoT 미국 법인 서비스'
+order: 5
+startDate: '2024-09-01'
+endDate: '2025-10-14'
+description: 'IoCare+ 한국 법인 서비스를 미국 법인 요구사항에 맞춰 분리 및 재구축 - Docker/EKS 기반 인프라'
+tags: ['Next.js', 'TypeScript', 'Docker', 'AWS ECR', 'AWS EKS', 'ArgoCD', 'Kubernetes']
+company: "코웨이"
+---
+
+## 프로젝트 개요
+
+코웨이 IoCare+ 한국 법인 서비스를 미국 법인(NECOA) 요구사항에 맞춰 독립 분리 및 재구축한 프로젝트입니다. GitHub 레파지토리 복제, Docker 컨테이너화, EKS + ArgoCD 기반 GitOps 배포 파이프라인 구축, 법인별 비즈니스 로직 분리 작업을 진행했습니다.
+
+> 💡 기반이 된 한국 법인 서비스의 상세한 기술 스택 및 구현 내용은 [IoCare+ IoT 글로벌 서비스](/projects/coway-iocare-plus-service) 프로젝트를 참고하세요.
+
+## 기술 스택
+
+- **Frontend**: Next.js (App Router), TypeScript, SCSS, Framer Motion
+- **State**: Jotai, SWR
+- **Containerization**: Docker, Multi-stage Build
+- **Infrastructure**: AWS ECR, AWS EKS, ArgoCD
+- **Deploy**: GitHub Actions, GitOps
+
+## 프로젝트 정보
+
+- **역할**: 업무 PL
+- **담당**: 프론트엔드 설계, 개발, 인프라 구축, 팀 리딩, 연관부서 협의
+
+## 주요 과제
+
+### 1. GitHub 레파지토리 분리 및 독립 관리 체계
+
+한국 법인 레파지토리를 복제하여 미국 법인 독립 개발 환경 구축
+
+- 한국 법인(IoCare+) 레파지토리 복제 및 NECOA 레파지토리 생성
+- 브랜치 전략 재수립 (main, develop, feature/*)
+
+### 2. Docker 컨테이너화
+
+Next.js Docker 프로덕션 최적화 컨테이너 이미지 구축
+
+- 스테이지 구성: dependencies → builder → runner
+- Standalone 모드로 빌드 크기 최소화
+- 레이어 캐싱 최적화로 빌드 시간 단축
+
+### 3. CI/CD 파이프라인 재구축
+
+GitHub Actions 기반 Docker 빌드 및 배포 자동화
+
+- GitHub Actions 워크플로우 작성
+  - 1단계: Next.js 빌드 및 테스트
+  - 2단계: Docker 이미지 빌드
+  - 3단계: AWS ECR 로그인 및 이미지 푸시
+  - 4단계: Kubernetes 매니페스트 업데이트
+- 브랜치별 배포 전략 (develop → dev, main → production)
+- 이미지 태그 전략: Git SHA + 타임스탬프
+
+### 4. 법인별 비즈니스 로직 분리
+
+미국 법인 정책에 따른 비즈니스 로직 재구성 및 사이드 이펙트 최소화
+
+- 제품 카테고리 정책 변경: 정수기만 지원 (한국: 정수기/공기청정기/비데/매트리스)
+- 기존 멀티 카테고리 로직을 분리하여 정수기 전용 로직으로 단순화
+- 조건부 렌더링 및 분기 처리 최소화로 코드 복잡도 감소
+- 사이드 이펙트 최소화
+
+### 5. 네이티브앱/백엔드 인터페이스 재정의
+
+미국 법인 네이티브앱, 백엔드 팀과 협업하여 새로운 인터페이스 정의
+
+- 네이티브앱 팀과 웹뷰 통신 인터페이스 재정의
+  - 미국 법인 정책에 맞춘 파라미터 조정
+- 백엔드 팀과 API 스펙 재협의
+  - 정수기 전용 API 엔드포인트 정의
+  - 불필요한 카테고리 필드 제거
+- OpenAPI Generator로 새로운 타입 정의 자동 생성
