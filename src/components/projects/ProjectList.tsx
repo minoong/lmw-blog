@@ -64,7 +64,7 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedCompany(null)}
-              className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+              className={`cursor-pointer rounded-md px-3 py-1 text-sm font-medium transition-colors ${
                 selectedCompany === null
                   ? 'bg-blue-600 text-white dark:bg-blue-500'
                   : 'dark:bg-claude-surface dark:hover:bg-claude-border bg-gray-100 text-gray-700 hover:bg-gray-200 dark:text-gray-300'
@@ -76,7 +76,7 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
               <button
                 key={company}
                 onClick={() => setSelectedCompany(company)}
-                className={`flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+                className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors ${
                   selectedCompany === company
                     ? 'bg-blue-600 text-white dark:bg-blue-500'
                     : 'bg-blue-100 text-gray-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-gray-300 dark:hover:bg-blue-900/50'

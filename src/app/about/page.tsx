@@ -7,6 +7,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import remarkGfm from 'remark-gfm';
+import { ViewTransition } from 'react';
 
 import TableOfContents from '@/components/mdx/TableOfContents';
 import 'highlight.js/styles/github-dark.css';
@@ -21,36 +22,38 @@ export default function AboutPage() {
   const content = fs.readFileSync(contentPath, 'utf8');
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_250px]">
-        <article className="prose prose-lg max-w-3xl">
-          <MDXRemote
-            source={content}
-            options={{
-              mdxOptions: {
-                remarkPlugins: [remarkGfm],
-                rehypePlugins: [
-                  rehypeHighlight,
-                  rehypeSlug,
-                  [
-                    rehypeAutolinkHeadings,
-                    {
-                      behavior: 'wrap',
-                      properties: {
-                        className: ['anchor-link'],
+    <ViewTransition>
+      <div className="mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_250px]">
+          <article className="prose prose-lg max-w-3xl">
+            <MDXRemote
+              source={content}
+              options={{
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm],
+                  rehypePlugins: [
+                    rehypeHighlight,
+                    rehypeSlug,
+                    [
+                      rehypeAutolinkHeadings,
+                      {
+                        behavior: 'wrap',
+                        properties: {
+                          className: ['anchor-link'],
+                        },
                       },
-                    },
+                    ],
                   ],
-                ],
-              },
-            }}
-          />
-        </article>
+                },
+              }}
+            />
+          </article>
 
-        <aside className="hidden lg:block">
-          <TableOfContents />
-        </aside>
+          <aside className="hidden lg:block">
+            <TableOfContents />
+          </aside>
+        </div>
       </div>
-    </div>
+    </ViewTransition>
   );
 }
