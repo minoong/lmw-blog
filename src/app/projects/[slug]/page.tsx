@@ -13,6 +13,7 @@ import { getWorkProject, getWorkProjects } from '@/lib/blog';
 import { COMPANY_LOGOS, basePath } from '@/lib/constants';
 import TableOfContents from '@/components/mdx/TableOfContents';
 import Mermaid from '@/components/mdx/Mermaid';
+import PostNavigation from '@/components/blog/PostNavigation';
 import 'highlight.js/styles/github-dark.css';
 
 type Props = {
@@ -44,11 +45,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
-  const project = getWorkProject(slug);
+  const projects = getWorkProjects();
+  const projectIndex = projects.findIndex((p) => p.slug === slug);
+  const project = projects[projectIndex];
 
   if (!project) {
     notFound();
   }
+
+  const previousProject = projectIndex > 0 ? projects[projectIndex - 1] : null;
+  const nextProject = projectIndex < projects.length - 1 ? projects[projectIndex + 1] : null;
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -146,6 +152,7 @@ export default async function ProjectPage({ params }: Props) {
               }}
             />
           </div>
+          <PostNavigation basePath="/projects" previousPost={previousProject} nextPost={nextProject} />
         </article>
 
         {/* Table of Contents - Desktop only */}
