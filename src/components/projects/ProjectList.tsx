@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, ViewTransition } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -117,48 +117,44 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
               {/* Company Projects */}
               <div className="space-y-6">
                 {group.projects.map((project) => (
-                  <ViewTransition key={project.slug} name={`project-card-${project.slug}`}>
-                    <Link
-                      href={`/projects/${project.slug}`}
-                      className="group dark:border-claude-border dark:bg-claude-surface block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-                    >
-                      <div className="mb-3 flex items-center justify-between">
-                        <ViewTransition name={`company-logo-${project.slug}`}>
-                          {project.company && COMPANY_LOGOS[project.company] ? (
-                            <div className="dark:bg-claude-border flex h-6 items-center rounded bg-gray-300 px-2 py-1">
-                              <Image src={COMPANY_LOGOS[project.company]} alt={project.company} width={60} height={20} className="h-4 w-auto object-contain" />
-                            </div>
-                          ) : (
-                            <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                              {project.company}
-                            </span>
-                          )}
-                        </ViewTransition>
-                        <ViewTransition name={`project-date-${project.slug}`}>
-                          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-                            <time>{format(new Date(project.startDate), 'yyyy.MM')}</time>
-                            <span>-</span>
-                            {project.endDate ? <time>{format(new Date(project.endDate), 'yyyy.MM')}</time> : <span>진행중</span>}
-                          </div>
-                        </ViewTransition>
-                      </div>
-                      <ViewTransition name={`project-title-${project.slug}`}>
-                        <h2 className="mb-2 text-xl font-semibold transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                          {project.title}
-                        </h2>
-                      </ViewTransition>
-                      <p className="mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">{project.description}</p>
-                      {project.tags && project.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {project.tags.map((tag) => (
-                            <span key={tag} className="dark:bg-claude-border rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400">
-                              {tag}
-                            </span>
-                          ))}
+                  <Link
+                    key={project.slug}
+                    href={`/projects/${project.slug}`}
+                    className="group dark:border-claude-border dark:bg-claude-surface block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      {project.company && COMPANY_LOGOS[project.company] ? (
+                        <div className="dark:bg-claude-border flex h-6 items-center rounded bg-gray-300 px-2 py-1">
+                          <Image src={COMPANY_LOGOS[project.company]} alt={project.company} width={60} height={20} className="h-4 w-auto object-contain" />
                         </div>
+                      ) : (
+                        <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                          {project.company}
+                        </span>
                       )}
-                    </Link>
-                  </ViewTransition>
+
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
+                        <time>{format(new Date(project.startDate), 'yyyy.MM')}</time>
+                        <span>-</span>
+                        {project.endDate ? <time>{format(new Date(project.endDate), 'yyyy.MM')}</time> : <span>진행중</span>}
+                      </div>
+                    </div>
+
+                    <h2 className="mb-2 text-xl font-semibold transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+                      {project.title}
+                    </h2>
+
+                    <p className="mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">{project.description}</p>
+                    {project.tags && project.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {project.tags.map((tag) => (
+                          <span key={tag} className="dark:bg-claude-border rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </Link>
                 ))}
               </div>
             </div>

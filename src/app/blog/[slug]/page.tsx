@@ -6,7 +6,6 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import remarkGfm from 'remark-gfm';
-import { ViewTransition } from 'react';
 
 import { getBlogPost, getBlogPosts } from '@/lib/blog';
 import { basePath } from '@/lib/constants';
@@ -54,20 +53,18 @@ export default async function BlogPostPage({ params }: Props) {
         {/* Main Content */}
         <article className="max-w-3xl">
           <header className="mb-8">
-            <ViewTransition name={`post-title-${slug}`}>
-              <h1 className="mb-4 text-4xl font-bold dark:text-white">{post.title}</h1>
-              <ViewTransition name={`post-date-${slug}`}>
-                <div className="mb-4 flex items-center text-gray-600 dark:text-gray-400">
-                  {post.category && (
-                    <>
-                      <span className="capitalize">{post.category}</span>
-                      <span className="mx-2">•</span>
-                    </>
-                  )}
-                  <time>{format(new Date(post.date), 'yyyy년 MM월 dd일')}</time>
-                </div>
-              </ViewTransition>
-            </ViewTransition>
+            <h1 className="mb-4 text-4xl font-bold dark:text-white">{post.title}</h1>
+
+            <div className="mb-4 flex items-center text-gray-600 dark:text-gray-400">
+              {post.category && (
+                <>
+                  <span className="capitalize">{post.category}</span>
+                  <span className="mx-2">•</span>
+                </>
+              )}
+              <time>{format(new Date(post.date), 'yyyy년 MM월 dd일')}</time>
+            </div>
+
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag) => (

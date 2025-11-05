@@ -1,6 +1,5 @@
 'use client';
-
-import { useState, useMemo, ViewTransition } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
@@ -57,37 +56,35 @@ export default function BlogList({ posts, tags }: BlogListProps) {
       {filteredPosts.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2">
           {filteredPosts.map((post) => (
-            <ViewTransition key={post.slug} name={`post-card-${post.slug}`}>
-              <Link
-                href={`/blog/${post.slug}`}
-                className="group dark:border-claude-border dark:bg-claude-surface block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-              >
-                <div className="mb-3 flex flex-wrap gap-2">
-                  {post.tags?.map((tag) => (
-                    <span key={tag} className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <ViewTransition name={`post-title-${post.slug}`}>
-                  <h2 className="mb-2 text-xl font-semibold transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                    {post.title}
-                  </h2>
-                </ViewTransition>
-                <p className="mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">{post.description}</p>
-                <ViewTransition name={`post-date-${post.slug}`}>
-                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-500">
-                    <time>{format(new Date(post.date), 'yyyy년 MM월 dd일')}</time>
-                    {post.category && (
-                      <>
-                        <span className="mx-2">•</span>
-                        <span className="capitalize">{post.category}</span>
-                      </>
-                    )}
-                  </div>
-                </ViewTransition>
-              </Link>
-            </ViewTransition>
+            <Link
+              key={post.slug}
+              href={`/blog/${post.slug}`}
+              className="group dark:border-claude-border dark:bg-claude-surface block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+            >
+              <div className="mb-3 flex flex-wrap gap-2">
+                {post.tags?.map((tag) => (
+                  <span key={tag} className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <h2 className="mb-2 text-xl font-semibold transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+                {post.title}
+              </h2>
+
+              <p className="mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">{post.description}</p>
+
+              <div className="flex items-center text-sm text-gray-500 dark:text-gray-500">
+                <time>{format(new Date(post.date), 'yyyy년 MM월 dd일')}</time>
+                {post.category && (
+                  <>
+                    <span className="mx-2">•</span>
+                    <span className="capitalize">{post.category}</span>
+                  </>
+                )}
+              </div>
+            </Link>
           ))}
         </div>
       ) : (

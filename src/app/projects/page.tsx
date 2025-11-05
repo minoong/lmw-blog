@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { ViewTransition } from 'react';
 
 import { getWorkProjects, getAllCompanies, getAllProjectTags } from '@/lib/blog';
 import ProjectList from '@/components/projects/ProjectList';
@@ -16,17 +15,15 @@ export default function ProjectsPage() {
   const tags = getAllProjectTags();
 
   return (
-    <ViewTransition>
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-8">
-          <h1 className="mb-4 text-4xl font-bold dark:text-white">Projects</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">업무 프로젝트와 경험을 공유합니다.</p>
-        </div>
-
-        <ProjectTechStack tags={tags} />
-
-        <ProjectList projects={projects} companies={allCompanies} />
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-8">
+        <h1 className="mb-4 text-4xl font-bold dark:text-white">Projects</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">업무 프로젝트와 경험을 공유합니다.</p>
       </div>
-    </ViewTransition>
+
+      <ProjectTechStack tags={tags} />
+
+      <ProjectList projects={projects} companies={allCompanies} />
+    </div>
   );
 }
