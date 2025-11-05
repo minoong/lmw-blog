@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useMemo, ViewTransition } from 'react';
+import { useMemo, ViewTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import type { WorkProject } from '@/lib/blog';
 import { COMPANY_LOGOS, COMPANY_PRIORITY } from '@/lib/constants';
@@ -19,7 +20,10 @@ interface GroupedProjects {
 }
 
 export default function ProjectList({ projects, companies }: ProjectListProps) {
-  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const selectedCompany = searchParams.get('company');
 
   const filteredProjects = useMemo(() => {
     if (!selectedCompany) return projects;
@@ -55,6 +59,16 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
     });
   }, [companies]);
 
+  const handleCompanyClick = (company: string | null) => {
+    const params = new URLSearchParams(searchParams);
+    if (company) {
+      params.set('company', company);
+    } else {
+      params.delete('company');
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <>
       {/* Companies */}
@@ -63,8 +77,8 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
           <h2 className="mb-3 text-lg font-semibold dark:text-white">Companies</h2>
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setSelectedCompany(null)}
-              className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+              onClick={() => handleCompanyClick(null)}
+              className={`cursor-pointer rounded-md px-3 py-1 text-sm font-medium transition-colors ${
                 selectedCompany === null
                   ? 'bg-blue-600 text-white dark:bg-blue-500'
                   : 'dark:bg-claude-surface dark:hover:bg-claude-border bg-gray-100 text-gray-700 hover:bg-gray-200 dark:text-gray-300'
@@ -75,8 +89,8 @@ export default function ProjectList({ projects, companies }: ProjectListProps) {
             {sortedCompanies.map((company) => (
               <button
                 key={company}
-                onClick={() => setSelectedCompany(company)}
-                className={`flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+                onClick={() => handleCompanyClick(company)}
+                className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors ${
                   selectedCompany === company
                     ? 'bg-blue-600 text-white dark:bg-blue-500'
                     : 'bg-blue-100 text-gray-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-gray-300 dark:hover:bg-blue-900/50'
