@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { PanInfo } from 'motion/react';
+import { motion, useMotionValue, useTransform, animate } from 'motion/react';
 
 import ThemeToggle from '@/components/theme/ThemeToggle';
 
@@ -12,55 +14,75 @@ interface MobileDrawerProps {
   navItems: Array<{ href: string; label: string }>;
 }
 
+const CLOSE_THRESHOLD = 100;
+const VELOCITY_THRESHOLD = 500;
+
 export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawerProps) {
   const pathname = usePathname();
+  const y = useMotionValue(0);
+  const drawerHeight = useMotionValue(0);
 
-  // ESC 키로 닫기
+  const overlayOpacity = useTransform(y, [0, drawerHeight.get()], [0.5, 0]);
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
+      if (e.key === 'Escape') onClose();
     };
 
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
+  useEffect(() => {
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      // 스크롤 방지
       document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
+      animate(y, 0, { type: 'spring', stiffness: 300, damping: 30 });
+    } else {
       document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, onClose]);
+
+      if (drawerHeight.get() > 0) {
+        animate(y, drawerHeight.get(), { type: 'spring', stiffness: 300, damping: 30 });
+      }
+    }
+  }, [isOpen, y, drawerHeight]);
+
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const { offset, velocity } = info;
+
+    if (offset.y > CLOSE_THRESHOLD || velocity.y > VELOCITY_THRESHOLD) {
+      onClose();
+    } else {
+      animate(y, 0, { type: 'spring', stiffness: 300, damping: 30 });
+    }
+  };
 
   return (
     <>
-      {/* 백드롭 오버레이 */}
-      <div
-        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
-          isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      {isOpen && (
+        <motion.div className="fixed inset-0 z-40 bg-black backdrop-blur-sm" style={{ opacity: overlayOpacity }} onClick={onClose} aria-hidden="true" />
+      )}
 
-      {/* 드로어 (하단에서 올라옴) */}
-      <div
-        className={`dark:border-claude-border dark:bg-claude-bg fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-gray-200 bg-white shadow-2xl transition-transform duration-300 ease-out ${
-          isOpen ? 'translate-y-0' : 'translate-y-full'
-        }`}
+      <motion.div
+        ref={(el) => {
+          if (el) drawerHeight.set(el.offsetHeight);
+        }}
+        className="dark:border-claude-border dark:bg-claude-bg fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-gray-200 bg-white shadow-2xl"
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
+        drag="y"
+        dragConstraints={{ top: 0, bottom: drawerHeight.get() }}
+        dragElastic={{ top: 0, bottom: 1 }}
+        onDragEnd={handleDragEnd}
+        style={{ y }}
+        initial={{ y: '100%' }}
+        animate={{ y: isOpen ? 0 : '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
-        {/* 드래그 핸들 */}
-        <div className="flex justify-center py-3">
+        <div className="flex cursor-grab justify-center py-3 active:cursor-grabbing">
           <div className="dark:bg-claude-border h-1.5 w-12 rounded-full bg-gray-300" />
         </div>
 
-        {/* 메뉴 아이템 */}
         <nav className="px-6 pt-4 pb-8">
           <ul className="space-y-1">
             {navItems.map((item) => {
@@ -83,13 +105,11 @@ export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawer
             })}
           </ul>
 
-          {/* 테마 토글 */}
-          <div className="dark:border-claude-border mt-6 flex items-center justify-between border-t border-gray-200 pt-6">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</span>
+          <div className="dark:border-claude-border mt-6 flex items-center justify-end border-t border-gray-200 pt-6">
             <ThemeToggle />
           </div>
         </nav>
-      </div>
+      </motion.div>
     </>
   );
 }
