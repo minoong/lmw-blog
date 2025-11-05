@@ -14,6 +14,7 @@ interface MobileDrawerProps {
   navItems: Array<{ href: string; label: string }>;
 }
 
+const MAXINUM_HEIGHT = 10;
 const CLOSE_THRESHOLD = 100;
 const VELOCITY_THRESHOLD = 500;
 
@@ -36,7 +37,7 @@ export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawer
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      animate(y, 0, { type: 'spring', stiffness: 300, damping: 30 });
+      animate(y, MAXINUM_HEIGHT, { type: 'spring', stiffness: 300, damping: 30 });
     } else {
       document.body.style.overflow = 'unset';
 
@@ -52,7 +53,7 @@ export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawer
     if (offset.y > CLOSE_THRESHOLD || velocity.y > VELOCITY_THRESHOLD) {
       onClose();
     } else {
-      animate(y, 0, { type: 'spring', stiffness: 300, damping: 30 });
+      animate(y, MAXINUM_HEIGHT, { type: 'spring', stiffness: 300, damping: 30 });
     }
   };
 
@@ -71,12 +72,12 @@ export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawer
         aria-modal="true"
         aria-label="Mobile navigation menu"
         drag="y"
-        dragConstraints={{ top: 0, bottom: drawerHeight.get() }}
+        dragConstraints={{ top: MAXINUM_HEIGHT, bottom: drawerHeight.get() }}
         dragElastic={{ top: 0, bottom: 1 }}
         onDragEnd={handleDragEnd}
         style={{ y }}
         initial={{ y: '100%' }}
-        animate={{ y: isOpen ? 0 : '100%' }}
+        animate={{ y: isOpen ? MAXINUM_HEIGHT : '100%' }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
         <div className="flex cursor-grab justify-center py-3 active:cursor-grabbing">
