@@ -10,6 +10,7 @@ import remarkGfm from 'remark-gfm';
 
 import TableOfContents from '@/components/mdx/TableOfContents';
 import 'highlight.js/styles/github-dark.css';
+import { basePath } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -42,6 +43,14 @@ export default function AboutPage() {
                     },
                   ],
                 ],
+              },
+            }}
+            components={{
+              img: (props) => {
+                const src = props.src || '';
+                const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;
+                // eslint-disable-next-line @next/next/no-img-element
+                return <img {...props} src={finalSrc} alt={props.alt || ''} className="my-4 h-auto max-w-full rounded-lg" />;
               },
             }}
           />
