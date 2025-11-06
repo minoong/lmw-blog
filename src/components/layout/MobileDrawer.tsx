@@ -93,7 +93,7 @@ export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawer
                   <Link
                     href={item.href}
                     onClick={onClose}
-                    className={`block rounded-lg px-4 py-3 text-base font-medium transition-colors ${
+                    className={`block rounded-lg px-4 py-3 text-base font-bold transition-colors ${
                       isActive
                         ? 'dark:bg-claude-surface bg-blue-50 text-blue-600 dark:text-blue-400'
                         : 'dark:hover:bg-claude-surface text-gray-700 hover:bg-gray-50 dark:text-gray-300'

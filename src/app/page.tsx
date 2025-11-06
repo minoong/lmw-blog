@@ -15,9 +15,9 @@ export default function Home() {
       {/* Hero Section */}
       <section className="py-16 text-center">
         <p className="mx-auto max-w-2xl text-xl leading-relaxed text-gray-600 dark:text-gray-400">
-          개발 경험과 학습 내용을 공유하는 기술 블로그입니다.
+          안녕하세요, 프론트엔드 개발자 이민우입니다.
           <br />
-          새로운 기술을 탐구하고 문제를 해결한 과정을 기록합니다.
+          저의 소개, 경력사항, 경력기술서 그리고 토이 프로젝트 내용을 소개합니다.
         </p>
       </section>
 
