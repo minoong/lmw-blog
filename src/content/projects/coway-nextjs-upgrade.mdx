@@ -2,7 +2,7 @@
 title: 'IoCare+ / NECOA Next.js v15 업그레이드'
 order: 9
 description: 'Next.js v13에서 v15로 major 버전 업그레이드 및 React 19 마이그레이션'
-tags: ['Next.js', 'React', 'Migration', 'Testing']
+tags: ['Next.js', 'React', 'Migration', 'Vitest', 'Testing']
 startDate: '2025-07-01'
 endDate: '2025-09-30'
 company: "코웨이"
@@ -17,7 +17,7 @@ IoCare+(한국 법인)와 NECOA(미국 법인) 서비스의 Next.js를 v13에서
 - **Next.js** - v13 → v15
 - **React** - v18 → v19
 - **TypeScript** - v5.x (breaking changes 대응)
-- **Testing** - Cypress (E2E), Vitest (Unit)
+- **Testing** - Vitest (Unit)
 
 ---
 
@@ -107,22 +107,7 @@ export async function GET() {
 |-----------|--------|-------|------|
 | swr | v1.x | v2.x | React 19 호환성 |
 | jotai | v2.0 | v2.9 | React 19 호환성 |
-| react-i18next | v12.x | v14.x | React 19 지원 |
-| framer-motion | v10.x | v11.x | ref props 변경 대응 |
-
-### TypeScript 타입 에러 해결
-
-```typescript
-// @types/react v19 업데이트로 인한 타입 변경
-// FormEvent → React.FormEvent
-// MouseEvent → React.MouseEvent
-
-// Before
-const handleSubmit = (e: FormEvent) => { ... }
-
-// After
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => { ... }
-```
+| framer-motion | v10.x | v11.x | ref props 변경 대응, 및 훅 사용성 변경 |
 
 ---
 
@@ -131,13 +116,13 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => { ... }
 ### 회귀 테스트
 
 **수동 테스트 항목**:
-- [ ] 모든 서비스 페이지 동작 (API 요청 포함)
-- [ ] 디바이스 상태 실시간 업데이트 (WebSocket)
-- [ ] 네이티브 브릿지 통신 (iOS/Android)
-- [ ] 커스텀 바텀시트 동작 (framer-motion 관련 로직 수정)
-- [ ] 에러 바운더리 처리
+- [x] 모든 서비스 페이지 동작 (API 요청 포함)
+- [x] 디바이스 상태 실시간 업데이트 (WebSocket)
+- [x] 네이티브 브릿지 통신 (iOS/Android)
+- [x] 커스텀 바텀시트 동작 (framer-motion 관련 로직 수정)
+- [x] 에러 바운더리 처리
 
-**결과**: 주요 기능 모두 정상 동작 확인
+주요 기능 모두 정상 동작 확인
 
 ---
 

@@ -123,14 +123,14 @@ packages:
 **컴파운드 패턴 구현**:
 - 복잡한 컴포넌트를 작은 서브 컴포넌트로 분리
 - 부모-자식 관계를 명확히 하여 유연한 조합 가능
-- Context API를 활용한 암묵적 props 전달
+- Context API를 활용한 props 전달 및 Context 접근 커스텀 훅 설계/구현
 - 예시: `BottomSheet.Container`, `BottomSheet.Header`, `BottomSheet.Content`
 
 **Storybook 문서화**:
 - 모든 공통 컴포넌트에 대한 Storybook 작성
 - 컴파운드 패턴별 사용 예시 제공
 - 인터랙션 테스트 포함
-- 앱에서 독립적으로 컴포넌트 개발 및 테스트 가능
+- 앱 독립적으로 컴포넌트 개발 및 테스트 가능
 
 #### packages/hooks
 
@@ -249,7 +249,7 @@ export default defineConfig({
     'sync-i18n': 'src/sync-i18n.ts',
     'create-env': 'src/create-env.ts',
   },
-  format: ['cjs'],
+  format: ['cjs', 'esm'],
   dts: false,
   shebang: {
     'generate-types': '#!/usr/bin/env node',
