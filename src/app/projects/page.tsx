@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 
 import { getWorkProjects, getAllCompanies, getAllProjectTags } from '@/lib/blog';
 import ProjectList from '@/components/projects/ProjectList';
@@ -23,7 +24,9 @@ export default function ProjectsPage() {
 
       <ProjectTechStack tags={tags} />
 
-      <ProjectList projects={projects} companies={allCompanies} />
+      <Suspense>
+        <ProjectList projects={projects} companies={allCompanies} />
+      </Suspense>
     </div>
   );
 }

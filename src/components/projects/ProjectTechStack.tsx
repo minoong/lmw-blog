@@ -13,7 +13,7 @@ export default function ProjectTechStack({ tags }: ProjectTechStackProps) {
 
   return (
     <section className="py-4">
-      <div className="space-y-4">
+      <div className="none space-y-4 select-none">
         <Marquee speed={50} gradient={false}>
           {topTags.map((tag, index) => (
             <div
