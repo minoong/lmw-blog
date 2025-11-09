@@ -27,13 +27,13 @@ export default function CareerPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_250px]">
         <div className="lg:col-span-1">
           <div className="mb-8">
-            <div className="flex items-center border-l-4 border-blue-500 bg-blue-50 p-2 dark:border-blue-400 dark:bg-gray-800">
+            <div className="dark:bg-claude-surface flex items-center border-l-4 border-blue-500 bg-blue-50 p-2 dark:border-blue-400">
               <div className="group ml-4 flex-1">
-                <p className="font-semibold text-gray-900 dark:text-white">경력 기술서</p>
+                <p className="dark:text-claude-text-secondary font-semibold text-gray-900">경력 기술서</p>
                 <Link
                   href={`/archive/프론트엔드_경력기술서_이민우.pdf`}
                   download="프론트엔드_경력기술서_이민우.pdf"
-                  className="mt-2 inline-flex items-center text-sm font-medium text-blue-600 underline group-hover:text-blue-900 dark:text-blue-500"
+                  className="mt-2 inline-flex items-center text-sm font-medium text-blue-600 underline group-hover:text-blue-500 dark:text-blue-400"
                 >
                   <Download className="mr-2 h-4 w-4" />
                   .pdf 파일 다운로드
