@@ -12,7 +12,6 @@ import { Download } from 'lucide-react';
 
 import TableOfContents from '@/components/mdx/TableOfContents';
 import 'highlight.js/styles/github-dark.css';
-import { basePath } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: 'Career',
@@ -32,7 +31,7 @@ export default function CareerPage() {
               <div className="group ml-4 flex-1">
                 <p className="font-semibold text-gray-900 dark:text-white">경력 기술서</p>
                 <Link
-                  href={`${basePath}/archive/프론트엔드_경력기술서_이민우.pdf`}
+                  href={`/archive/프론트엔드_경력기술서_이민우.pdf`}
                   download="프론트엔드_경력기술서_이민우.pdf"
                   className="mt-2 inline-flex items-center text-sm font-medium text-blue-600 underline group-hover:text-blue-900 dark:text-blue-500"
                 >
