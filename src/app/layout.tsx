@@ -23,6 +23,11 @@ export const metadata: Metadata = {
     default: '이민우의 Tech Blog',
   },
   description: '개발자의 기술 블로그. 개발 경험, 프로젝트, 그리고 학습 내용을 공유합니다.',
+  other: {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    Pragma: 'no-cache',
+    Expires: '0',
+  },
 };
 
 export default function RootLayout({
@@ -32,6 +37,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
+      <head>
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} dark:bg-claude-bg dark:text-claude-text flex min-h-screen flex-col bg-gray-50 text-gray-900 antialiased`}
       >
