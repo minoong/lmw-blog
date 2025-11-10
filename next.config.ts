@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
   experimental: {
     viewTransition: true,
   },
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
 };
 
 const withMDX = createMDX({
