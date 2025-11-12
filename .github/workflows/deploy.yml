@@ -54,6 +54,8 @@ jobs:
         run: pnpm build
         env:
           NODE_ENV: production
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
