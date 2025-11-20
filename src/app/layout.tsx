@@ -6,6 +6,7 @@ import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton';
+import FirebaseAnalytics from '@/components/analytics/FirebaseAnalytics';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -46,6 +47,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} dark:bg-claude-bg dark:text-claude-text flex min-h-screen flex-col bg-gray-50 text-gray-900 antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <FirebaseAnalytics />
           <Navigation />
           <main className="mx-auto w-full max-w-7xl grow px-4 pt-24 pb-8 sm:px-6 lg:px-8">{children}</main>
           <Footer />
