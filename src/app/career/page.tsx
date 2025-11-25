@@ -31,8 +31,8 @@ export default function CareerPage() {
               <div className="group ml-4 flex-1">
                 <p className="dark:text-claude-text-secondary font-semibold text-gray-900">경력 기술서</p>
                 <Link
-                  href={`/archive/프론트엔드_경력기술서_이민우.pdf`}
-                  download="프론트엔드_경력기술서_이민우.pdf"
+                  href={`/archive/${process.env.NEXT_PUBLIC_LMW_PORTFOLIO}`}
+                  download={process.env.NEXT_PUBLIC_LMW_PORTFOLIO}
                   className="mt-2 inline-flex items-center text-sm font-medium text-blue-600 underline group-hover:text-blue-500 dark:text-blue-400"
                 >
                   <Download className="mr-2 h-4 w-4" />
