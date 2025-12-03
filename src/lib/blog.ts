@@ -14,6 +14,7 @@ export interface Post {
   description?: string;
   tags?: string[];
   category?: string;
+  project?: string;
   content: string;
 }
 
@@ -25,6 +26,7 @@ export interface ToyProject {
   link?: string;
   github?: string;
   image?: string;
+  relatedPosts?: string[];
   content: string;
 }
 
@@ -65,6 +67,7 @@ export function getBlogPosts(): Post[] {
         description: data.description || '',
         tags: data.tags || [],
         category: data.category || 'general',
+        project: data.project || undefined,
         content,
       };
     })
@@ -90,6 +93,7 @@ export function getBlogPost(slug: string): Post | null {
     description: data.description || '',
     tags: data.tags || [],
     category: data.category || 'general',
+    project: data.project || undefined,
     content,
   };
 }
@@ -112,6 +116,7 @@ export function getToyProjects(): ToyProject[] {
       link: data.link || '',
       github: data.github || '',
       image: data.image || '',
+      relatedPosts: data.relatedPosts || [],
       content,
     };
   });
@@ -228,4 +233,32 @@ export function getAllProjectTags(): string[] {
   });
 
   return Array.from(tags).sort();
+}
+
+export function getToyProject(slug: string): ToyProject | null {
+  const fullPath = path.join(contentDirectory, 'toy-projects', `${slug}.mdx`);
+
+  if (!fs.existsSync(fullPath)) {
+    return null;
+  }
+
+  const fileContents = fs.readFileSync(fullPath, 'utf8');
+  const { data, content } = matter(fileContents);
+
+  return {
+    slug,
+    title: data.title || slug,
+    description: data.description || '',
+    tags: data.tags || [],
+    link: data.link || '',
+    github: data.github || '',
+    image: data.image || '',
+    relatedPosts: data.relatedPosts || [],
+    content,
+  };
+}
+
+export function getPostsByProject(projectSlug: string): Post[] {
+  const posts = getBlogPosts();
+  return posts.filter((post) => post.project === projectSlug);
 }
