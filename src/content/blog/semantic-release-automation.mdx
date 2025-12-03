@@ -1,0 +1,438 @@
+---
+title: "semantic-release로 자동화된 버전 관리 및 배포 구축하기"
+date: "2025-12-03"
+description: "Conventional Commits와 semantic-release를 활용한 자동화된 버전 관리, CHANGELOG 생성, GitHub Release 배포 시스템 구축 방법"
+tags: ["CI/CD", "semantic-release", "GitHub Actions", "DevOps"]
+category: "devops"
+---
+
+# semantic-release로 자동화된 버전 관리 및 배포 구축하기
+
+버전 관리와 배포를 수동으로 하다 보면 실수가 발생하기 쉽고, CHANGELOG 업데이트를 깜빡하거나 버전 번호를 잘못 올리는 경우가 생깁니다. **semantic-release**는 Conventional Commits 규칙을 기반으로 버전 관리, CHANGELOG 생성, GitHub Release를 완전 자동화해주는 도구입니다.
+
+이 글에서는 실제 프로젝트에 적용한 semantic-release 설정과 GitHub Actions 워크플로우를 소개합니다.
+
+## 실제 적용 사례
+
+이 글에서 소개하는 설정을 적용한 실제 프로젝트의 결과물을 확인할 수 있습니다:
+
+- **[자동 생성된 CHANGELOG](https://github.com/minoong/garden-bizarre-adventure/blob/main/CHANGELOG.md)** - 커밋 히스토리 기반 자동 업데이트
+- **[GitHub Releases](https://github.com/minoong/garden-bizarre-adventure/releases)** - 태그 및 릴리즈 노트 자동 발행
+
+## semantic-release란?
+
+[semantic-release](https://github.com/semantic-release/semantic-release)는 **Semantic Versioning**(SemVer)을 자동으로 관리해주는 도구입니다.
+
+### 주요 기능
+
+- **자동 버전 결정**: 커밋 메시지 분석으로 major/minor/patch 버전 자동 증가
+- **CHANGELOG 생성**: 커밋 히스토리 기반 자동 CHANGELOG.md 생성
+- **GitHub Release 생성**: 태그 및 릴리즈 노트 자동 발행
+- **package.json 업데이트**: 새 버전 자동 반영
+
+### Semantic Versioning 규칙
+
+semantic-release는 Conventional Commits 메시지를 분석하여 버전을 결정합니다:
+
+| 커밋 타입 | 버전 영향 | 예시 |
+|---------|----------|------|
+| `feat:` | **minor** (0.1.0 → 0.2.0) | 새로운 기능 추가 |
+| `fix:` | **patch** (0.1.0 → 0.1.1) | 버그 수정 |
+| `BREAKING CHANGE:` | **major** (0.1.0 → 1.0.0) | 하위 호환성 깨지는 변경 |
+| `docs:`, `style:`, `refactor:`, `test:`, `chore:` | **버전 증가 없음** | CHANGELOG에만 기록 |
+
+## 설정 파일 구성
+
+### 1. .releaserc.json 설정
+
+프로젝트 루트에 `.releaserc.json` 파일을 생성합니다:
+
+```json
+{
+  "branches": ["main"],
+  "preset": "conventionalcommits",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "✨ 새로운 기능" },
+            { "type": "fix", "section": "🐛 버그 수정" },
+            { "type": "perf", "section": "⚡ 성능 개선" },
+            { "type": "revert", "section": "⏪ 되돌리기" },
+            { "type": "docs", "section": "📚 문서", "hidden": false },
+            { "type": "style", "section": "💎 스타일", "hidden": false },
+            { "type": "chore", "section": "📦 기타", "hidden": false },
+            { "type": "refactor", "section": "📦 리팩토링", "hidden": false },
+            { "type": "test", "section": "🚨 테스트", "hidden": false },
+            { "type": "build", "section": "🛠 빌드 시스템", "hidden": false },
+            { "type": "ci", "section": "⚙️ CI/CD", "hidden": false }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "package.json"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    "@semantic-release/github"
+  ]
+}
+```
+
+### 설정 상세 설명
+
+#### 1. branches: 릴리즈 대상 브랜치
+```json
+"branches": ["main"]
+```
+`main` 브랜치에 푸시될 때만 릴리즈를 수행합니다.
+
+#### 2. @semantic-release/commit-analyzer
+커밋 메시지를 분석하여 다음 버전을 결정합니다.
+- `feat:` → minor 버전 증가
+- `fix:` → patch 버전 증가
+- `BREAKING CHANGE:` → major 버전 증가
+
+#### 3. @semantic-release/release-notes-generator
+릴리즈 노트를 생성합니다. `presetConfig.types`에서 섹션 제목을 설정할 수 있습니다.
+
+```json
+{
+  "type": "feat",
+  "section": "✨ 새로운 기능",
+  "hidden": false
+}
+```
+
+- `hidden: false`: CHANGELOG에 해당 타입 커밋을 표시
+- `hidden: true`: CHANGELOG에서 제외 (기본값)
+
+#### 4. @semantic-release/changelog
+`CHANGELOG.md` 파일을 자동으로 생성/업데이트합니다.
+
+```json
+{
+  "changelogFile": "CHANGELOG.md"
+}
+```
+
+#### 5. @semantic-release/npm
+npm 레지스트리 배포 설정입니다. npm 패키지가 아닌 경우 `npmPublish: false`로 설정합니다.
+
+```json
+{
+  "npmPublish": false
+}
+```
+
+#### 6. @semantic-release/git
+변경된 파일을 자동으로 커밋하고 푸시합니다.
+
+```json
+{
+  "assets": ["CHANGELOG.md", "package.json"],
+  "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+}
+```
+
+- `assets`: 커밋할 파일 목록
+- `message`: 커밋 메시지 템플릿 (`[skip ci]`로 무한 루프 방지)
+
+#### 7. @semantic-release/github
+GitHub Release를 생성하고 릴리즈 노트를 발행합니다.
+
+## GitHub Actions 워크플로우
+
+`.github/workflows/release.yml` 파일을 생성합니다:
+
+```yaml
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run tests and build
+        run: |
+          pnpm lint
+          pnpm build
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: 0
+        run: pnpm dlx semantic-release
+```
+
+### 워크플로우 설명
+
+#### 1. 트리거 조건
+```yaml
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+```
+- `main` 브랜치에 푸시될 때 자동 실행
+- `workflow_dispatch`: 수동으로도 실행 가능
+
+#### 2. 권한 설정
+```yaml
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+```
+- `contents: write`: 커밋/태그 생성 권한
+- `issues: write`: 이슈 작성 권한
+- `pull-requests: write`: PR 작성 권한
+
+#### 3. `[skip ci]` 무한 루프 방지
+```yaml
+if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+```
+semantic-release가 생성한 커밋(`chore(release): ...`)에는 `[skip ci]`가 포함되어 있어 워크플로우가 다시 실행되지 않습니다.
+
+#### 4. 전체 Git 히스토리 가져오기
+```yaml
+- name: Checkout code
+  uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+```
+`fetch-depth: 0`으로 전체 커밋 히스토리를 가져와야 semantic-release가 버전을 정확히 결정할 수 있습니다.
+
+#### 5. Git 사용자 설정
+```yaml
+- name: Configure Git
+  run: |
+    git config user.name "github-actions[bot]"
+    git config user.email "github-actions[bot]@users.noreply.github.com"
+```
+semantic-release가 커밋/푸시할 때 사용할 Git 사용자 정보를 설정합니다.
+
+#### 6. 테스트 및 빌드
+```yaml
+- name: Run tests and build
+  run: |
+    pnpm lint
+    pnpm build
+```
+릴리즈 전에 린트와 빌드를 실행하여 문제가 없는지 확인합니다.
+
+#### 7. semantic-release 실행
+```yaml
+- name: Release
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    HUSKY: 0
+  run: pnpm dlx semantic-release
+```
+- `GITHUB_TOKEN`: GitHub API 인증용 토큰
+- `HUSKY: 0`: Husky Git hooks 비활성화 (CI 환경에서 불필요)
+
+## 의존성 설치
+
+프로젝트에 필요한 패키지를 설치합니다:
+
+```bash
+pnpm add -D semantic-release \
+  @semantic-release/changelog \
+  @semantic-release/git \
+  @semantic-release/github \
+  @semantic-release/commit-analyzer \
+  @semantic-release/release-notes-generator \
+  conventional-changelog-conventionalcommits
+```
+
+## 사용 예시
+
+### 1. 기능 추가 (minor 버전 증가)
+
+```bash
+git commit -m "feat: 사용자 프로필 페이지 추가"
+git push origin main
+```
+
+**결과**: `1.0.0` → `1.1.0`
+
+### 2. 버그 수정 (patch 버전 증가)
+
+```bash
+git commit -m "fix: 로그인 버튼 클릭 오류 수정"
+git push origin main
+```
+
+**결과**: `1.1.0` → `1.1.1`
+
+### 3. Breaking Change (major 버전 증가)
+
+```bash
+git commit -m "feat!: API 응답 구조 변경
+
+BREAKING CHANGE: API 응답이 { data, error } 형태로 변경되었습니다."
+git push origin main
+```
+
+**결과**: `1.1.1` → `2.0.0`
+
+### 4. 문서 업데이트 (버전 증가 없음)
+
+```bash
+git commit -m "docs: README 설치 방법 업데이트"
+git push origin main
+```
+
+**결과**: 버전 증가 없음, CHANGELOG에만 기록
+
+## 자동 생성되는 결과물
+
+semantic-release가 자동으로 생성하는 것들:
+
+1. **CHANGELOG.md 업데이트**
+   ```markdown
+   ## [1.1.0](https://github.com/user/repo/compare/v1.0.0...v1.1.0) (2025-12-03)
+
+   ### ✨ 새로운 기능
+
+   * 사용자 프로필 페이지 추가 ([abc1234](https://github.com/user/repo/commit/abc1234))
+   ```
+
+2. **package.json 버전 업데이트**
+   ```json
+   {
+     "version": "1.1.0"
+   }
+   ```
+
+3. **Git 태그 생성**: `v1.1.0` 태그 자동 생성
+
+4. **GitHub Release 발행**: 릴리즈 노트와 함께 자동 발행
+
+5. **커밋 생성**:
+   ```
+   chore(release): 1.1.0 [skip ci]
+
+   ## [1.1.0](https://github.com/user/repo/compare/v1.0.0...v1.1.0) (2025-12-03)
+
+   ### ✨ 새로운 기능
+
+   * 사용자 프로필 페이지 추가
+   ```
+
+## 장점
+
+### 1. 자동화
+버전 관리, CHANGELOG 생성, 릴리즈 발행이 모두 자동으로 처리됩니다.
+
+### 2. 일관성 유지
+Conventional Commits 규칙을 강제하여 커밋 메시지와 버전 관리의 일관성을 보장합니다.
+
+### 3. 휴먼 에러 방지
+수동으로 버전을 올리거나 CHANGELOG를 작성할 때 발생하는 실수를 방지합니다.
+
+### 4. 릴리즈 히스토리
+모든 변경사항이 CHANGELOG와 GitHub Release에 자동으로 기록됩니다.
+
+## 주의사항
+
+### 1. Conventional Commits 준수 필수
+semantic-release는 커밋 메시지를 분석하므로 Conventional Commits 규칙을 반드시 지켜야 합니다.
+
+**올바른 예시**:
+```bash
+feat: 새로운 기능 추가
+fix: 버그 수정
+docs: 문서 업데이트
+```
+
+**잘못된 예시**:
+```bash
+added new feature
+bug fix
+update docs
+```
+
+### 2. `[skip ci]` 필수
+`.releaserc.json`의 커밋 메시지에 `[skip ci]`를 포함시켜야 무한 루프를 방지할 수 있습니다.
+
+```json
+{
+  "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+}
+```
+
+### 3. `fetch-depth: 0` 설정
+GitHub Actions에서 전체 Git 히스토리를 가져와야 semantic-release가 정확한 버전을 결정할 수 있습니다.
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+```
+
+### 4. Git 권한 설정
+`GITHUB_TOKEN`에 `contents: write` 권한이 있어야 커밋/태그를 생성할 수 있습니다.
+
+```yaml
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+```
+
+## 결론
+
+semantic-release를 도입하면 버전 관리와 배포 과정이 완전히 자동화되어 개발 생산성이 크게 향상됩니다. Conventional Commits 규칙만 지키면 나머지는 모두 자동으로 처리되므로, 개발자는 코드 작성에만 집중할 수 있습니다.
+
+특히 팀 프로젝트에서 일관된 릴리즈 프로세스를 유지하고, 변경 이력을 관리하는 데 매우 유용합니다.
