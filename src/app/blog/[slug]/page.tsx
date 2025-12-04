@@ -12,6 +12,7 @@ import { getBlogPost, getBlogPosts, getToyProject } from '@/lib/blog';
 import { basePath } from '@/lib/constants';
 import TableOfContents from '@/components/mdx/TableOfContents';
 import 'highlight.js/styles/github-dark.css';
+import Mermaid from '@/components/mdx/Mermaid';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -177,6 +178,21 @@ export default async function BlogPostPage({ params }: Props) {
                 },
               }}
               components={{
+                pre: ({ children, ...props }) => {
+                  if (children && typeof children === 'object' && 'props' in children) {
+                    const codeProps = children.props;
+                    const className = codeProps?.className || '';
+
+                    if (className.includes('language-mermaid')) {
+                      const code = codeProps.children;
+                      if (typeof code === 'string') {
+                        return <Mermaid chart={code.trim()} />;
+                      }
+                    }
+                  }
+
+                  return <pre {...props}>{children}</pre>;
+                },
                 a: (props) => {
                   const href = props.href || '';
                   const isExternal = href.startsWith('http');
