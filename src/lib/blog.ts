@@ -18,12 +18,18 @@ export interface Post {
   content: string;
 }
 
+export interface ProjectLink {
+  url: string;
+  label: string;
+  priority: number;
+}
+
 export interface ToyProject {
   slug: string;
   title: string;
   description: string;
   tags?: string[];
-  link?: string;
+  links?: ProjectLink[];
   github?: string;
   image?: string;
   relatedPosts?: string[];
@@ -108,12 +114,14 @@ export function getToyProjects(): ToyProject[] {
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
 
+    const links = data.links ? [...data.links].sort((a: ProjectLink, b: ProjectLink) => a.priority - b.priority) : [];
+
     return {
       slug,
       title: data.title || slug,
       description: data.description || '',
       tags: data.tags || [],
-      link: data.link || '',
+      links,
       github: data.github || '',
       image: data.image || '',
       relatedPosts: data.relatedPosts || [],
@@ -245,12 +253,14 @@ export function getToyProject(slug: string): ToyProject | null {
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(fileContents);
 
+  const links = data.links ? [...data.links].sort((a: ProjectLink, b: ProjectLink) => a.priority - b.priority) : [];
+
   return {
     slug,
     title: data.title || slug,
     description: data.description || '',
     tags: data.tags || [],
-    link: data.link || '',
+    links,
     github: data.github || '',
     image: data.image || '',
     relatedPosts: data.relatedPosts || [],

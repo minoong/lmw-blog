@@ -71,26 +71,33 @@ export default async function ToyProjectPage({ params }: Props) {
                     </svg>
                     <span className="text-sm">GitHub</span>
                   </a>
-                  {project.link && <span className="text-gray-600 dark:text-gray-400">•</span>}
+                  {project.links && project.links.length > 0 && <span className="text-gray-600 dark:text-gray-400">•</span>}
                 </>
               )}
-              {project.link && (
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
-                  <span className="text-sm">Demo</span>
-                </a>
+              {project.links && project.links.length > 0 && (
+                <>
+                  {project.links.map((link, index) => (
+                    <span key={index} className="flex items-center gap-3">
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+                      >
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                        <span className="text-sm">{link.label}</span>
+                      </a>
+                      {index < (project.links?.length ?? 0) - 1 && <span className="text-gray-600 dark:text-gray-400">•</span>}
+                    </span>
+                  ))}
+                </>
               )}
             </div>
 
