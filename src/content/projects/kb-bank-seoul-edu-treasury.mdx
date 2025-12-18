@@ -27,28 +27,6 @@ company: "유채널"
 
 ## 업무 흐름도
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant KEdu as k-에듀파인<br/>(외부망)
-    participant EBanking as e-교육뱅킹<br/>(망연계)
-    participant Treasury as 교육금고<br/>(내부망/은행망)
-
-    Note over KEdu,Treasury: 세출(지급명령) 처리 흐름
-
-    KEdu->>EBanking: 지급명령 요청
-    EBanking->>Treasury: 요청 전송 (외부망→내부망)
-
-    activate Treasury
-    Treasury->>Treasury: 업무 처리
-    Treasury-->>EBanking: 처리 결과 응답
-    deactivate Treasury
-
-    EBanking-->>KEdu: 결과 전송
-
-    Note over Treasury: • 운용계좌별 세출 처리<br/>• 오류정정 입금 재전송<br/>• 세입/세출 보고서 연계
-```
-
 사용자(k-에듀파인) → e-교육뱅킹 → **교육금고**
 
 외부망인 k-에듀파인 시스템에서 세출(지급명령)에 대한 요청이 이루어지면 내부망(은행망)으로 요청이 들어오게 되어 해당 업무를 처리하고, 응답결과를 전송합니다.

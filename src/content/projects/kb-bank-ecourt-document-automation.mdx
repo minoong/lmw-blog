@@ -29,53 +29,6 @@ company: "유채널"
 
 전자소송 문서 전송은 다음과 같은 완전 자동화 프로세스로 진행됩니다.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant RPA as RPA 봇
-    participant Batch as Spring Boot 배치
-    participant API as REST API 서버
-    participant Browser as 브라우저 자동화
-    participant Court as 대법원 API
-
-    Note over RPA,Court: 전자소송 문서 전송 자동화 프로세스
-
-    RPA->>Batch: CSV 파일 생성 (사건번호별 대상 목록)
-
-    rect rgb(255, 249, 196)
-    Note right of Batch: 문서 생성 단계
-    Batch->>Batch: CSV 파싱 및 데이터 검증
-    Batch->>Batch: HTML 템플릿 로드
-    Batch->>Batch: 정규식 기반 데이터 치환
-    Batch->>Batch: PDF 생성 (~/사건번호/.pdf)
-    Batch-->>API: 파일 저장 완료 통보
-    end
-
-    loop 브라우저 폴링 (30초 간격)
-        Browser->>API: 전송 대상 조회 요청
-        alt 전송 대상 존재
-            API-->>Browser: 사건번호 목록 반환
-
-            rect rgb(200, 230, 201)
-            Note right of Browser: 대법원 제출 단계
-            Browser->>Court: 인증서 로그인
-            Court-->>Browser: 인증 성공
-            Browser->>Court: 서류 업로드 (PDF 파일)
-            Court-->>Browser: 업로드 완료
-            Browser->>Court: 제출 요청
-            Court-->>Browser: 콜백 응답 (성공/실패)
-            end
-
-            Browser->>API: 전송 결과 전송
-            API->>API: 결과 파일 생성 (~/사건번호/결과)
-        else 전송 대상 없음
-            API-->>Browser: 대기 중
-        end
-    end
-
-    Note over RPA,Court: 업무 마감 시간까지 반복
-```
-
 ### 1. **사건번호별 대상 목록 생성 (RPA 봇)**
 
 KB국민은행 RPA(봇)가 전자소송 대상 사건 목록을 자동으로 생성합니다.
