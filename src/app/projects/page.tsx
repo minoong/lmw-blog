@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { getWorkProjects, getAllCompanies, getAllProjectTags } from '@/lib/blog';
 import ProjectList from '@/components/projects/ProjectList';
 import ProjectTechStack from '@/components/projects/ProjectTechStack';
+import AnimatedFadeInText from '@/components/common/AnimatedFadeInText';
 
 export const metadata: Metadata = {
   title: 'Projects',
@@ -18,8 +19,12 @@ export default function ProjectsPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <h1 className="mb-4 text-4xl font-bold dark:text-white">Projects</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">업무 프로젝트와 경험을 공유합니다.</p>
+        <AnimatedFadeInText as="h1" className="mb-4 text-4xl font-bold dark:text-white">
+          Projects
+        </AnimatedFadeInText>
+        <AnimatedFadeInText as="p" className="text-lg text-gray-600 dark:text-gray-400" delay={0.3}>
+          업무 프로젝트와 경험을 공유합니다.
+        </AnimatedFadeInText>
       </div>
 
       <ProjectTechStack tags={tags} />

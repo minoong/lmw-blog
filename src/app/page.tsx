@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { getBlogPosts, getWorkProjects, getToyProjects } from '@/lib/blog';
 import { COMPANY_LOGOS } from '@/lib/constants';
 import AnimatedHeroText from '@/components/common/AnimatedHeroText';
+import AnimatedSectionTitle from '@/components/common/AnimatedSectionTitle';
 
 export default function Home() {
   const recentPosts = getBlogPosts().slice(0, 3);
@@ -24,7 +25,7 @@ export default function Home() {
       {/* Recent Projects Section */}
       <section>
         <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-3xl font-bold dark:text-white">Projects</h2>
+          <AnimatedSectionTitle>Projects</AnimatedSectionTitle>
           <Link
             href="/projects"
             className="flex items-center gap-1 font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -41,7 +42,7 @@ export default function Home() {
               <Link
                 key={project.slug}
                 href={`/projects/${project.slug}`}
-                className="group dark:border-claude-border dark:bg-claude-surface block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                className="group dark:border-claude-border dark:bg-claude-surface relative rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
               >
                 <div className="mb-3 flex items-center justify-between">
                   {project.company && COMPANY_LOGOS[project.company] ? (
@@ -88,7 +89,7 @@ export default function Home() {
       {/* Toy Projects Section */}
       <section>
         <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-3xl font-bold dark:text-white">Toy Projects</h2>
+          <AnimatedSectionTitle>Toy Projects</AnimatedSectionTitle>
           <Link
             href="/toy-projects"
             className="flex items-center gap-1 font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -174,10 +175,10 @@ export default function Home() {
       {/* Recent Posts Section */}
       <section>
         <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-3xl font-bold dark:text-white">Recent Posts</h2>
+          <AnimatedSectionTitle>Recent Posts</AnimatedSectionTitle>
           <Link
             href="/blog"
-            className="flex items-center gap-1 font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="relative flex items-center gap-1 font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
             View all
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +192,7 @@ export default function Home() {
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group dark:border-claude-border dark:bg-claude-surface block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                className="group dark:border-claude-border dark:bg-claude-surface relative block rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
               >
                 <div className="mb-3 flex flex-wrap gap-2">
                   {post.tags?.map((tag) => (
