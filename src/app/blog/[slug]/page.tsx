@@ -11,6 +11,7 @@ import remarkGfm from 'remark-gfm';
 import { getBlogPost, getBlogPosts, getToyProject } from '@/lib/blog';
 import { basePath } from '@/lib/constants';
 import TableOfContents from '@/components/mdx/TableOfContents';
+import ContentNavigation from '@/components/common/ContentNavigation';
 import 'highlight.js/styles/github-dark.css';
 import Mermaid from '@/components/mdx/Mermaid';
 
@@ -43,11 +44,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const posts = getBlogPosts();
+  const postIndex = posts.findIndex((p) => p.slug === slug);
+  const post = posts[postIndex];
 
   if (!post) {
     notFound();
   }
+
+  const previousPost = postIndex > 0 ? posts[postIndex - 1] : null;
+  const nextPost = postIndex < posts.length - 1 ? posts[postIndex + 1] : null;
 
   // 연관된 토이프로젝트 가져오기
   const relatedProject = post.project ? getToyProject(post.project) : null;
@@ -219,6 +225,7 @@ export default async function BlogPostPage({ params }: Props) {
               }}
             />
           </div>
+          <ContentNavigation basePath="/blog" previousPost={previousPost} nextPost={nextPost} />
         </article>
 
         {/* Table of Contents - Desktop only */}
