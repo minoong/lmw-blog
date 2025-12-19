@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 import { getToyProjects } from '@/lib/blog';
+import AnimatedFadeInText from '@/components/common/AnimatedFadeInText';
 
 export const metadata: Metadata = {
   title: 'Toy Projects',
@@ -14,8 +15,12 @@ export default function ToyProjectsPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <h1 className="mb-4 text-4xl font-bold dark:text-white">Toy Projects</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">진행한 토이 프로젝트들을 소개합니다.</p>
+        <AnimatedFadeInText as="h1" className="mb-4 text-4xl font-bold dark:text-white">
+          Toy Projects
+        </AnimatedFadeInText>
+        <AnimatedFadeInText as="p" className="text-lg text-gray-600 dark:text-gray-400" delay={0.3}>
+          진행한 토이 프로젝트들을 소개합니다.
+        </AnimatedFadeInText>
       </div>
 
       {projects.length > 0 ? (
