@@ -65,6 +65,11 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
           NEXT_PUBLIC_LMW_PORTFOLIO: ${{ secrets.NEXT_PUBLIC_LMW_PORTFOLIO }}
 
+      - name: Fix GitHub Pages routing
+        run: |
+          cp out/404.html out/404.html.backup
+          cp out/index.html out/404.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
