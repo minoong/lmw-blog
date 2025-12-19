@@ -12,7 +12,7 @@ import { getWorkProject, getWorkProjects } from '@/lib/blog';
 import { COMPANY_LOGOS, basePath } from '@/lib/constants';
 import TableOfContents from '@/components/mdx/TableOfContents';
 import Mermaid from '@/components/mdx/Mermaid';
-import PostNavigation from '@/components/blog/PostNavigation';
+import ContentNavigation from '@/components/common/ContentNavigation';
 import 'highlight.js/styles/github-dark.css';
 
 type Props = {
@@ -148,7 +148,7 @@ export default async function ProjectPage({ params }: Props) {
               }}
             />
           </div>
-          <PostNavigation basePath="/projects" previousPost={previousProject} nextPost={nextProject} />
+          <ContentNavigation basePath="/projects" previousPost={previousProject} nextPost={nextProject} />
         </article>
 
         {/* Table of Contents - Desktop only */}
