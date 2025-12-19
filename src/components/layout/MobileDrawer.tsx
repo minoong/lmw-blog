@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { PanInfo } from 'motion/react';
@@ -22,6 +22,7 @@ export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawer
   const pathname = usePathname();
   const y = useMotionValue(0);
   const drawerHeight = useMotionValue(0);
+  const [hasBeenOpened, setHasBeenOpened] = useState(false);
 
   const overlayOpacity = useTransform(y, [0, drawerHeight.get()], [0.5, 0]);
 
@@ -36,6 +37,8 @@ export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawer
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHasBeenOpened(true);
       document.body.style.overflow = 'hidden';
       animate(y, MAXINUM_HEIGHT, { type: 'spring', stiffness: 300, damping: 30 });
     } else {
@@ -67,7 +70,7 @@ export default function MobileDrawer({ isOpen, onClose, navItems }: MobileDrawer
         ref={(el) => {
           if (el) drawerHeight.set(el.offsetHeight);
         }}
-        className="dark:border-claude-border dark:bg-claude-bg fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-gray-200 bg-white shadow-2xl"
+        className={`dark:border-claude-border dark:bg-claude-bg fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-gray-200 bg-white shadow-2xl lg:hidden ${!hasBeenOpened && !isOpen && 'invisible'}`}
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
