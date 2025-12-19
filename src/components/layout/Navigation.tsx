@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion, useInView } from 'motion/react';
 
 import HamburgerIcon from '@/components/layout/HamburgerIcon';
 import MobileDrawer from '@/components/layout/MobileDrawer';
@@ -19,13 +20,14 @@ const navItems = [
   { href: '/blog', label: 'Blog' },
 ];
 
-// 네비게이션 높이 (h-16 = 64px)
 const NAV_HEIGHT = 64;
 
 export default function Navigation() {
   const pathname = usePathname();
   const { ref, marginTop } = useSpyElem({ elemHeight: NAV_HEIGHT, threshold: 15 });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const titleRef = useRef(null);
+  const isInView = useInView(titleRef, { once: true });
 
   const handleToggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -47,7 +49,19 @@ export default function Navigation() {
             {/* 로고 */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-2">
-                <span className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">이민우의 Tech Blog</span>
+                <span ref={titleRef} className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">
+                  {'이민우의 Tech Blog'.split('').map((letter, index) => (
+                    <motion.span
+                      key={index}
+                      initial={{ opacity: 0 }}
+                      animate={isInView ? { opacity: 1 } : {}}
+                      transition={{ duration: 0.2, delay: index * 0.05 }}
+                      style={{ display: 'inline-block' }}
+                    >
+                      {letter}
+                    </motion.span>
+                  ))}
+                </span>
               </Link>
             </div>
 

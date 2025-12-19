@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 
 import { getBlogPosts, getWorkProjects, getToyProjects } from '@/lib/blog';
 import { COMPANY_LOGOS } from '@/lib/constants';
+import AnimatedHeroText from '@/components/common/AnimatedHeroText';
 
 export default function Home() {
   const recentPosts = getBlogPosts().slice(0, 3);
@@ -14,11 +15,10 @@ export default function Home() {
     <div className="space-y-16">
       {/* Hero Section */}
       <section className="py-16 text-center">
-        <p className="mx-auto max-w-2xl text-xl leading-relaxed text-gray-600 dark:text-gray-400">
-          안녕하세요, 프론트엔드 개발자 이민우입니다.
-          <br />
-          저의 소개, 경력사항, 경력기술서 그리고 토이 프로젝트 내용을 소개합니다.
-        </p>
+        <AnimatedHeroText
+          lines={['안녕하세요, 프론트엔드 개발자 이민우입니다.', '저의 소개, 경력사항, 경력기술서 그리고 토이 프로젝트 내용을 소개합니다.']}
+          className="mx-auto max-w-2xl text-xl leading-relaxed text-gray-600 dark:text-gray-400"
+        />
       </section>
 
       {/* Recent Projects Section */}
