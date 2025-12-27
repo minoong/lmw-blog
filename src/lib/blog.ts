@@ -27,6 +27,7 @@ export interface ProjectLink {
 export interface ToyProject {
   slug: string;
   title: string;
+  order?: number;
   description: string;
   tags?: string[];
   links?: ProjectLink[];
@@ -119,6 +120,7 @@ export function getToyProjects(): ToyProject[] {
     return {
       slug,
       title: data.title || slug,
+      order: data.order ?? 0,
       description: data.description || '',
       tags: data.tags || [],
       links,
@@ -129,7 +131,7 @@ export function getToyProjects(): ToyProject[] {
     };
   });
 
-  return projects;
+  return projects.sort((a, b) => (b.order ?? 0) - (a.order ?? 0));
 }
 
 export function getWorkProjects(): WorkProject[] {
@@ -258,6 +260,7 @@ export function getToyProject(slug: string): ToyProject | null {
   return {
     slug,
     title: data.title || slug,
+    order: data.order ?? 0,
     description: data.description || '',
     tags: data.tags || [],
     links,
