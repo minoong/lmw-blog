@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { FileText, ExternalLink, FileDown, ZoomIn, ZoomOut, RotateCcw, Maximize, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Document, Page, pdfjs } from 'react-pdf';
@@ -21,8 +21,9 @@ export default function PDFViewer({ fileUrl, fileName }: PDFViewerProps) {
   const [scale, setScale] = useState<number>(1.0);
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const pageRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const visibilityMap = useRef<Map<number, number>>(new Map());
 
   React.useEffect(() => {
     const updateWidth = () => {
@@ -35,22 +36,34 @@ export default function PDFViewer({ fileUrl, fileName }: PDFViewerProps) {
 
     const observerOptions = {
       root: containerRef.current,
-      threshold: 0.5,
+      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
     };
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const pageIndex = entry.target.getAttribute('data-page-index');
-          if (pageIndex) {
-            setCurrentPage(parseInt(pageIndex, 10));
-          }
+        const indexAttr = entry.target.getAttribute('data-page-index');
+        if (indexAttr) {
+          const index = parseInt(indexAttr, 10);
+          visibilityMap.current.set(index, entry.intersectionRatio);
         }
       });
+
+      let maxRatio = -1;
+      let targetIndex = 1;
+
+      visibilityMap.current.forEach((ratio, index) => {
+        if (ratio > maxRatio) {
+          maxRatio = ratio;
+          targetIndex = index;
+        }
+      });
+
+      setCurrentPage(targetIndex);
     };
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
+    visibilityMap.current.clear();
     const currentRefs = pageRefs.current;
     currentRefs.forEach((ref) => {
       if (ref) observer.observe(ref);
@@ -62,7 +75,7 @@ export default function PDFViewer({ fileUrl, fileName }: PDFViewerProps) {
         if (ref) observer.unobserve(ref);
       });
     };
-  }, [numPages]);
+  }, [numPages, containerWidth]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -92,7 +105,7 @@ export default function PDFViewer({ fileUrl, fileName }: PDFViewerProps) {
             <FileText className="h-5 w-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="bg-linear-to-r from-blue-500 to-indigo-500 bg-clip-text text-[10px] font-black tracking-widest text-transparent uppercase">
+            <span className="bg-linear-to-r from-blue-500 to-indigo-500 bg-clip-text text-[10px] font-black tracking-widest text-nowrap text-transparent uppercase">
               이민우 경력기술서
             </span>
             <h3 className="max-w-[140px] truncate text-base font-bold text-zinc-800 sm:max-w-md dark:text-zinc-100">{fileName}</h3>
