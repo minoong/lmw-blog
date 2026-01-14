@@ -13,7 +13,6 @@ export default function StreamingHeroText({ lines, className = '', streamingSpee
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
-  const [completedLines, setCompletedLines] = useState<string[]>([]);
 
   useEffect(() => {
     if (currentLineIndex >= lines.length) {
@@ -33,7 +32,6 @@ export default function StreamingHeroText({ lines, className = '', streamingSpee
       } else {
         clearInterval(interval);
         setTimeout(() => {
-          setCompletedLines((prev) => [...prev, currentLine]);
           setCurrentLineIndex((prev) => prev + 1);
         }, 500);
       }
@@ -62,22 +60,31 @@ export default function StreamingHeroText({ lines, className = '', streamingSpee
 
   return (
     <div className={className}>
-      {completedLines.map((line, index) => (
-        <div key={`completed-${index}`} className={index > 0 ? 'mt-4' : ''}>
-          <span className="*:inline [&>*>*]:inline">
-            <Streamdown>{line}</Streamdown>
-          </span>
-          {currentLineIndex >= lines.length && index === completedLines.length - 1 && <Badge />}
-        </div>
-      ))}
-      {currentLineIndex < lines.length && (
-        <div className={completedLines.length > 0 ? 'mt-4' : ''}>
-          <span className="*:inline [&>*>*]:inline">
-            <Streamdown isAnimating={isStreaming}>{displayedText}</Streamdown>
-          </span>
-          <Badge />
-        </div>
-      )}
+      {lines.map((line, index) => {
+        const isCompleted = index < currentLineIndex;
+        const isCurrent = index === currentLineIndex;
+        const showBadge = isCurrent || (currentLineIndex >= lines.length && index === lines.length - 1);
+
+        return (
+          <div key={index} className={`relative grid grid-cols-1 grid-rows-1 ${index > 0 ? 'mt-4' : ''}`}>
+            {/* Height Reservoir: Render full line invisibly */}
+            <div className="invisible col-start-1 row-start-1 h-auto" aria-hidden="true">
+              <span className="*:inline [&>*>*]:inline">
+                <Streamdown>{line}</Streamdown>
+              </span>
+              {index === lines.length - 1 && <Badge />}
+            </div>
+
+            {/* Content Layer */}
+            <div className="col-start-1 row-start-1">
+              <span className="*:inline [&>*>*]:inline">
+                {isCompleted ? <Streamdown>{line}</Streamdown> : isCurrent && <Streamdown isAnimating={isStreaming}>{displayedText}</Streamdown>}
+              </span>
+              {showBadge && <Badge />}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

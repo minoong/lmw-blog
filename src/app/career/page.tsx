@@ -1,15 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-
-import { MDXRemote } from 'next-mdx-remote/rsc';
+import Link from 'next/link';
 import type { Metadata } from 'next';
-import rehypeHighlight from 'rehype-highlight';
-import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import remarkGfm from 'remark-gfm';
 
-import TableOfContents from '@/components/mdx/TableOfContents';
-import 'highlight.js/styles/github-dark.css';
+import InteractivePDFViewer from '@/components/career/InteractivePDFViewer';
+import AnimatedFadeInText from '@/components/common/AnimatedFadeInText';
+import { basePath } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: 'Career',
@@ -17,42 +11,22 @@ export const metadata: Metadata = {
 };
 
 export default function CareerPage() {
-  const contentPath = path.join(process.cwd(), 'src/content/career.mdx');
-  const content = fs.readFileSync(contentPath, 'utf8');
-
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_250px]">
-        <div className="lg:col-span-1">
-          <article className="prose prose-lg max-w-3xl">
-            <MDXRemote
-              source={content}
-              options={{
-                mdxOptions: {
-                  remarkPlugins: [remarkGfm],
-                  rehypePlugins: [
-                    rehypeHighlight,
-                    rehypeSlug,
-                    [
-                      rehypeAutolinkHeadings,
-                      {
-                        behavior: 'wrap',
-                        properties: {
-                          className: ['anchor-link'],
-                        },
-                      },
-                    ],
-                  ],
-                },
-              }}
-            />
-          </article>
-        </div>
-
-        <aside className="hidden lg:block">
-          <TableOfContents />
-        </aside>
+    <div className="mx-auto max-w-5xl px-4 py-8">
+      <div className="mb-8">
+        <AnimatedFadeInText as="h1" className="text-3xl font-bold tracking-tight sm:text-4xl">
+          Career
+        </AnimatedFadeInText>
+        <AnimatedFadeInText as="p" className="text-muted-foreground mt-2" delay={0.3}>
+          경력 사항 및 업무 경험을 소개합니다. 보다 자세한 프로젝트 히스토리는{' '}
+          <Link href="/projects" className="text-primary font-medium hover:underline">
+            Projects
+          </Link>{' '}
+          페이지를 참고해 주세요.
+        </AnimatedFadeInText>
       </div>
+
+      <InteractivePDFViewer fileUrl={`${basePath}/archive/career.pdf`} fileName="[프론트엔드_엔지니어]경력기술서_이민우.pdf" />
     </div>
   );
 }
