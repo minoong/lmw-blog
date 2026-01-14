@@ -13,7 +13,7 @@ import ScrollProgressIndicator from '@/components/ui/ScrollProgressIndicator';
 
 const navItems = [
   { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
+  // { href: '/about', label: 'About' },
   { href: '/career', label: 'Career' },
   { href: '/projects', label: 'Projects' },
   { href: '/toy-projects', label: 'Toy Projects' },
