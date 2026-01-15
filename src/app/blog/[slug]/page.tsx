@@ -14,6 +14,7 @@ import TableOfContents from '@/components/mdx/TableOfContents';
 import ContentNavigation from '@/components/common/ContentNavigation';
 import 'highlight.js/styles/github-dark.css';
 import Mermaid from '@/components/mdx/Mermaid';
+import Video from '@/components/mdx/Video';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -222,6 +223,7 @@ export default async function BlogPostPage({ params }: Props) {
                   // eslint-disable-next-line @next/next/no-img-element
                   return <img {...props} src={finalSrc} alt={props.alt || ''} className="my-4 h-auto max-w-full rounded-lg" />;
                 },
+                video: Video,
                 source: (props) => {
                   const src = props.src || '';
                   const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;
