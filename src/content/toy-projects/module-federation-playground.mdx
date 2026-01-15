@@ -1,0 +1,28 @@
+---
+title: '마이크로 프론트엔드 아키텍처(Module Federation)'
+order: 7
+description: 'Module Federation 기반 React, Vue, Iframe 통합 마이크로 프론트엔드 아키텍처'
+tags: ['Micro Frontends', 'Module Federation', 'Vite', 'React', 'Vue', 'Iframe', 'Pub/Sub']
+github: 'https://github.com/minoong/module-federation-playground'
+links:
+  - url: 'https://minoong.github.io/module-federation-playground/'
+    label: 'Live Demo'
+    priority: 1
+---
+
+`@module-federation/vite`를 활용하여 React, Vue, Iframe 등 이종 프레임워크를 단일 애플리케이션으로 통합한 실무형 마이크로 프론트엔드 예제입니다. 자체 구현한 Pub/Sub 스토어와 Window Messaging API를 통해 독립된 환경 간의 매끄러운 상태 동기화를 구현했으며, `driver.js`를 이용한 온보딩 투어와 자동 타입 추론 시스템을 통해 아키텍처의 복잡성을 해결하고 개발자 경험을 향상시켰습니다.
+
+단순히 기술을 검증하는 것을 넘어, 현업에서 마이크로 프론트엔드를 도입할 때 가장 고민하게 되는 **전역 상태 관리, 스타일 격리, 그리고 타입 공유** 문제를 어떻게 효율적으로 풀어낼 수 있을지 고민하며 만들었습니다.
+
+<video controls width="100%" className="h-auto w-full rounded-lg shadow-lg">
+  <source src="/archive/playground.mov" type="video/mp4" />
+  <source src="/archive/playground.mov" type="video/quicktime" />
+  Your browser does not support the video tag.
+</video>
+
+### 사용 기술
+
+- **아키텍처**: Module Federation (`@module-federation/vite`), Micro Frontends
+- **통합**: React 19, Vue 3, Iframe
+- **통신**: Custom Pub/Sub Store, Window Messaging API (`postMessage`)
+- **타입 안전성**: `@module-federation/dts-plugin`

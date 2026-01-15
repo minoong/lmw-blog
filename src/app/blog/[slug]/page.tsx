@@ -222,6 +222,11 @@ export default async function BlogPostPage({ params }: Props) {
                   // eslint-disable-next-line @next/next/no-img-element
                   return <img {...props} src={finalSrc} alt={props.alt || ''} className="my-4 h-auto max-w-full rounded-lg" />;
                 },
+                source: (props) => {
+                  const src = props.src || '';
+                  const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;
+                  return <source {...props} src={finalSrc} />;
+                },
               }}
             />
           </div>
