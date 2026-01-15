@@ -10,6 +10,7 @@ import remarkGfm from 'remark-gfm';
 import { getToyProject, getToyProjects, getBlogPost } from '@/lib/blog';
 import { basePath } from '@/lib/constants';
 import Mermaid from '@/components/mdx/Mermaid';
+import Video from '@/components/mdx/Video';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -162,6 +163,7 @@ export default async function ToyProjectPage({ params }: Props) {
                   // eslint-disable-next-line @next/next/no-img-element
                   return <img {...props} src={finalSrc} alt={props.alt || ''} className="my-4 h-auto max-w-full rounded-lg" />;
                 },
+                video: Video,
                 source: (props) => {
                   const src = props.src || '';
                   const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;

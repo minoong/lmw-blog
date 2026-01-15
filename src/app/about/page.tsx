@@ -11,6 +11,7 @@ import remarkGfm from 'remark-gfm';
 import TableOfContents from '@/components/mdx/TableOfContents';
 import 'highlight.js/styles/github-dark.css';
 import { basePath } from '@/lib/constants';
+import Video from '@/components/mdx/Video';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -53,6 +54,7 @@ export default function AboutPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   return <img {...props} src={finalSrc} alt={props.alt || ''} className="my-4 h-auto w-[200px] max-w-full rounded-lg object-cover" />;
                 },
+                video: Video,
                 source: (props) => {
                   const src = props.src || '';
                   const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;
