@@ -15,14 +15,22 @@ interface VideoProps {
 }
 
 export default function Video({ src, autoPlay, loop, muted, playsInline, controls = true, className, width, children }: VideoProps) {
-  const finalSrc = src?.startsWith('/') ? `${basePath}${src}` : src;
+  const getPath = (path?: string) => {
+    if (!path?.startsWith('/')) return path;
+    if (basePath !== '' && path.startsWith(basePath)) return path;
+    return `${basePath}${path}`;
+  };
+
+  const finalSrc = getPath(src);
 
   const processedChildren = React.Children.map(children, (child) => {
-    if (React.isValidElement(child) && (child.type === 'source' || (typeof child.type === 'string' && child.type === 'source'))) {
+    if (React.isValidElement(child)) {
       const childProps = child.props as { src?: string };
-      const childSrc = childProps.src;
-      const finalChildSrc = childSrc?.startsWith('/') ? `${basePath}${childSrc}` : childSrc;
-      return React.cloneElement(child as React.ReactElement<{ src?: string }>, { src: finalChildSrc });
+      if (childProps.src?.startsWith('/')) {
+        return React.cloneElement(child as React.ReactElement<{ src?: string }>, {
+          src: getPath(childProps.src),
+        });
+      }
     }
     return child;
   });
