@@ -166,7 +166,7 @@ export default async function ToyProjectPage({ params }: Props) {
                 video: Video,
                 source: (props) => {
                   const src = props.src || '';
-                  const finalSrc = src.startsWith('/') ? `${basePath}${src}` : src;
+                  const finalSrc = src.startsWith('/') && (basePath === '' || !src.startsWith(basePath)) ? `${basePath}${src}` : src;
                   return <source {...props} src={finalSrc} />;
                 },
               }}
