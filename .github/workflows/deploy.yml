@@ -54,6 +54,8 @@ jobs:
         run: pnpm build
         env:
           NODE_ENV: production
+          NEXT_PUBLIC_BASE_PATH: /lmw-blog
+          NEXT_PUBLIC_SITE_URL: https://minoong.github.io/lmw-blog
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}

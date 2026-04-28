@@ -2,9 +2,13 @@ import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
 import createMDX from '@next/mdx';
 
-// 개발 환경에서는 basePath 없이, 프로덕션(배포)에서는 /lmw-blog 사용
-const isProd = process.env.NODE_ENV === 'production';
-const basePathValue = isProd ? '/lmw-blog' : '';
+const normalizeBasePath = (path?: string) => {
+  if (!path || path === '/') return '';
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return normalized.replace(/\/$/, '');
+};
+
+const basePathValue = normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
 
 const nextConfig: NextConfig = {
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
@@ -12,8 +16,12 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: basePathValue,
-  assetPrefix: basePathValue,
+  ...(basePathValue
+    ? {
+        basePath: basePathValue,
+        assetPrefix: basePathValue,
+      }
+    : {}),
   trailingSlash: true,
   experimental: {
     viewTransition: true,

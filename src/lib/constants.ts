@@ -1,5 +1,13 @@
-// basePath를 환경에 따라 설정
-export const basePath = process.env.NODE_ENV === 'production' ? '/lmw-blog' : '';
+const normalizeBasePath = (path?: string) => {
+  if (!path || path === '/') return '';
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return normalized.replace(/\/$/, '');
+};
+
+const normalizeSiteUrl = (url?: string) => (url ?? 'https://lmw-blog.vercel.app').replace(/\/$/, '');
+
+export const basePath = normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
+export const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
 // 회사별 우선순위 상수
 export const COMPANY_PRIORITY: Record<string, number> = {
